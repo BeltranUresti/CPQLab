@@ -1,0 +1,10 @@
+<!--
+ - Created by josue.beltran on 10/5/2020.
+ -->
+
+<aura:component implements="lightning:isUrlAddressable,force:hasRecordId"  description="VIDSignerAdresableCont"  access="global" >
+	<aura:attribute name="recordId" type="Id"/>
+
+	<c:sendToSignDocVIDSignerForSF  recordId="{!v.recordId}"  record-id="{!v.recordId}" ></c:sendToSignDocVIDSignerForSF>
+
+</aura:component>

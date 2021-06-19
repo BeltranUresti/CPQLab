@@ -1,0 +1,7 @@
+<!--
+ - Created by josue.beltran on 7/3/2020.
+ -->
+
+<apex:page id="VIDSingerForSalesforceOpportunityDocs" standardController="Opportunity"
+           extensions="VDSingerPDFGenericController"  action="{!doRedirect}" >
+</apex:page>

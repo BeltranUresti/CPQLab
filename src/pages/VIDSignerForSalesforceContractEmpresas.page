@@ -1,0 +1,34 @@
+<!--
+ - Created by Administrador 1 on 05/06/2021.
+ -->
+
+<apex:page id="VIDSignerForSalesforceContractEmpresas" standardController="Contract" lightningStylesheets="true"
+           extensions="VDSingerPDFGenericController"    >
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="{!URLFOR($Resource.VIDSignerSpinnerCSS)}" type="text/css"/>
+    <apex:form >
+        <apex:slds />
+        <div class="slds-spinner_container">
+            <div role="status" class="slds-spinner slds-spinner_large"><span class="slds-assistive-text"></span>
+                <div class="slds-spinner__dot-a"></div>
+                <div class="slds-spinner__dot-b"></div>
+            </div>
+        </div>
+        <apex:actionFunction name="logout" action="{!doRedirect}" status="pageStatus">
+            <apex:param name="preLoadedPage" assignTo="{!preLoadedPage}" value="Empresas" />
+        </apex:actionFunction>
+        <script>
+
+            $(document).ready(function() {
+                showSpinner();
+                logout();
+            });
+
+            function showSpinner() {
+                $spinner = document.getElementsByClassName("slds-spinner_container")[0];
+                $spinner.style.display = "block";
+            }
+
+        </script>
+    </apex:form>
+</apex:page>

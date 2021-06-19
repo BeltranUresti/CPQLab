@@ -1,0 +1,101 @@
+<!--
+ - Created by Administrador 1 on 06/06/2021.
+ -->
+
+<!-- Vid Signer Integration List -->
+<template>
+
+    <div if:true={showSpinner} class="spinner-Loading slds-is-relative">
+        <lightning-spinner alternative-text="Loading..." variant="brand" size="medium"></lightning-spinner>
+    </div>
+  <template if:true={isLoaded} >
+      <header class="slds-global-header_container" >
+          <div class="slds-global-header slds-grid slds-grid_align-spread" style="background-color: rgb(255, 255, 255)">
+              <div class="slds-global-header__item">
+                  <div class="slds-context-bar__item slds-context-bar__dropdown-trigger slds-dropdown-trigger slds-dropdown-trigger_click slds-no-hover">
+                      <div class="slds-context-bar__icon-action">
+                          <button class="slds-button slds-context-bar__button" title="Description of the icon when needed">
+                              <div class="slds-global-header__logo">
+                                  <img src={logoUTM} width="140" height="90">
+                              </div>
+                          </button>
+                      </div>
+                      <span class="slds-context-bar__label-action slds-context-bar__app-name">
+      </span>
+                  </div>
+              </div>
+
+          </div>
+      </header>
+      <lightning-card title="Configuración" icon-name="standard:form">
+
+          <lightning-record-edit-form class="slds-p-around_xx-large" record-id={recordId}  object-api-name="cpqlab_2020__VIDSigner_Config__mdt" >
+              <lightning-messages>
+              </lightning-messages>
+              <div class="slds-grid slds-wrap">
+              <lightning-input-field required
+                                     data-field="Aviso_de_privacidad__c"
+                                     class="slds-col slds-size_1-of-2 slds-p-horizontal_xx-large"
+                                     field-name="cpqlab_2020__Aviso_de_privacidad__c"></lightning-input-field>
+
+              <lightning-input-field required
+                                     data-field="CertificateGUI__c"
+                                     class="slds-col slds-size_1-of-2 slds-p-horizontal_xx-large"
+                                     field-name="cpqlab_2020__CertificateGUI__c"></lightning-input-field>
+              <lightning-input-field required
+                                     data-field="Correo_administrador__c"
+                                     class="slds-col slds-size_1-of-2 slds-p-horizontal_xx-large"
+                                     field-name="cpqlab_2020__Correo_administrador__c"></lightning-input-field>
+              <lightning-input-field required
+                                     data-field="environment__c"
+                                     class="slds-col slds-size_1-of-2 slds-p-horizontal_xx-large"
+                                     field-name="cpqlab_2020__environment__c"></lightning-input-field>
+              <lightning-input-field required
+                                     data-field="Es_productivo__c"
+                                     class="slds-col slds-size_1-of-2 slds-p-horizontal_xx-large"
+                                     field-name="cpqlab_2020__Es_productivo__c"></lightning-input-field>
+              <lightning-input-field required
+                                     data-field="Language__c"
+                                     class="slds-col slds-size_1-of-2 slds-p-horizontal_xx-large"
+                                     field-name="cpqlab_2020__Language__c"></lightning-input-field>
+              <lightning-input-field required
+                                     data-field="PDF_Empresas__c"
+                                     class="slds-col slds-size_1-of-2 slds-p-horizontal_xx-large"
+                                     field-name="cpqlab_2020__PDF_Empresas__c"></lightning-input-field>
+              <lightning-input-field required
+                                     data-field="PDF_Particular__c"
+                                     class="slds-col slds-size_1-of-2 slds-p-horizontal_xx-large"
+                                     field-name="cpqlab_2020__PDF_Particular__c"></lightning-input-field>
+              <lightning-input-field required
+                                     data-field="Pin__c"
+                                     class="slds-col slds-size_1-of-2 slds-p-horizontal_xx-large"
+                                     field-name="cpqlab_2020__Pin__c"></lightning-input-field>
+              <lightning-input-field required
+                                     data-field="SignatureType__c"
+                                     class="slds-col slds-size_1-of-2 slds-p-horizontal_xx-large"
+                                     field-name="cpqlab_2020__SignatureType__c"></lightning-input-field>
+              <lightning-input-field required
+                                     data-field="subscription_pass__c"
+                                     class="slds-col slds-size_1-of-2 slds-p-horizontal_xx-large"
+                                     field-name="cpqlab_2020__subscription_pass__c"></lightning-input-field>
+              <lightning-input-field required
+                                     data-field="subscription_user__c"
+                                     class="slds-col slds-size_1-of-2 slds-p-horizontal_xx-large"
+                                     field-name="cpqlab_2020__subscription_user__c"></lightning-input-field>
+              <lightning-input-field required
+                                     data-field="URL_de_Notificaciones__c"
+                                     class="slds-col slds-size_1-of-2 slds-p-horizontal_xx-large"
+                                     field-name="cpqlab_2020__URL_de_Notificaciones__c"></lightning-input-field>
+                  <lightning-button
+                          class="slds-m-top_small"
+                          variant="brand"
+                          type="submit"
+                          name="update"
+                          label="Update">
+                  </lightning-button>
+              </div>
+          </lightning-record-edit-form>
+
+          </lightning-card>
+  </template>
+</template>

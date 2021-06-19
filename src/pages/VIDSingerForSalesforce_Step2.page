@@ -1,0 +1,1740 @@
+<!--
+ - Created by josue.beltran on 6/27/2020.
+ -->
+<apex:page id="VIDSingerForSalesforceDragNDropFilePage" applyBodyTag="false" applyHtmlTag="false"
+		   controller="VDSingerPDFViewerController"  docType="html-5.0" lightningStylesheets="false"
+		   showHeader="false"  >
+
+
+
+	<apex:form Id="F_INNER_INIT" >
+		<apex:inputHidden id="the_signer_list" value="{!available_Signers_Def}"></apex:inputHidden>
+	</apex:form>
+
+	<html lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+		<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+		<meta name="viewport" content="width=device-width, initial-scale = 1.0, maximum-scale = 1.0, user-scalable=no"/>
+		<meta name="description" content=""/>
+		<script src="https://unpkg.com/pdf-lib@1.4.0"></script>
+		<script src="https://unpkg.com/downloadjs@1.4.7"></script>
+
+		<meta name="author" content=""/>
+		<meta http-equiv="Expires" content="Tue, 01 Jan 1995 12:12:12 GMT"/>
+		<meta http-equiv="Pragma" content="no-cache"/>
+		<script type="text/javascript" src="{!URLFOR($Resource.VDJSS_compatibility)}"  ></script>
+		<!-- Bootstrap Core CSS -->
+		<link rel="stylesheet" href="{!URLFOR($Resource.VDJSS_Bootsrapcss)}"  type="text/css"/>
+		<link rel="stylesheet" href="{!URLFOR($Resource.VDJSS_V1CSS)}"  type="text/css"/>
+		<link rel="stylesheet" href="{!URLFOR($Resource.VDJSS_V1CSS1)}"  type="text/css"/>
+		<link rel="stylesheet" href="{!URLFOR($Resource.GaramondFont, 'garamond-font.css')}"  type="text/css"/>
+		<!-- Custom Fonts -->
+		<link
+				href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800'
+				rel='stylesheet' type='text/css' />
+		<link
+				href='https://fonts.googleapis.com/css?family=Merriweather:400,300,300italic,400italic,700,700italic,900,900italic'
+				rel='stylesheet' type='text/css'  />
+
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.1/css/fontawesome.min.css" type="text/css"/>
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/5.1.2/collection/components/icon/icon.min.css"/>
+		<!-- Plugin CSS -->
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/magnific-popup.js/1.1.0/magnific-popup.min.css"/>
+		<link
+				rel="stylesheet"
+				href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.0.0/animate.min.css"
+		/>
+		<!-- Custom CSS -->
+		<link rel="stylesheet" href="{!URLFOR($Resource.creativecss)}" type="text/css"/>
+		<link rel="stylesheet" href="{!URLFOR($Resource.VIDSignerSpinnerCSS)}" type="text/css"/>
+		<link rel="icon" type="image/png" href="https://sendto.vidsigner.net/favicon.png"/>
+		<link rel="stylesheet" href="{!URLFOR($Resource.vapp)}" type="text/css"/>
+
+	</head>
+	<body>
+	<apex:slds />
+
+	<div class="slds-spinner_container">
+		<div role="status" class="slds-spinner slds-spinner_large"><span class="slds-assistive-text"></span>
+			<div class="slds-spinner__dot-a"></div>
+			<div class="slds-spinner__dot-b"></div>
+		</div>
+	</div>
+
+	<!-- Aviso Legal Document Modal -->
+	<div class="modal" id="remove-signer-confirm" data-toggle="modal">
+		<div class="modal-dialogv2">
+			<div class="modal-content" style="background-color: #FFFFFF; color:#000000;">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+					<h2 class="modal-title">Confirmación</h2>
+				</div>
+				<div class="container"></div>
+				<div class="modal-body row" style="text-align: left; width: 100%;" id="modal-aviso-legal">
+					<p style="text-align:center;font-size:18px;">¿Desea borrar el firmante?</p>
+				</div>
+
+				<div class="modal-footerv2">
+					<div style="width:100%; text-align:center;">
+						<input type="button" value="Aceptar" id="btn-remove-yes" onclick="removeSignerYesClick();"  class="btn btn-primary"></input>
+						<input type="button" value="Cancelar" id="btn-remove-no" class="btn" onclick="removeSignerNoClick();" style="color:#000000;"></input>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Aviso Borrando Documento Modal -->
+	<div class="modal" id="remove-document-confirm" data-toggle="modal">
+		<div class="modal-dialogv2">
+			<div class="modal-content" style="background-color: #FFFFFF; color:#000000;">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+				</div>
+				<div class="container"></div>
+				<div class="modal-body row" style="text-align: left; width: 100%;" id="modal-aviso-legal">
+					<p style="text-align:center;font-size:18px;">¿Está seguro de querer eliminar este documento? Una vez eliminado no puede ser recuperado.</p>
+				</div>
+
+				<div class="modal-footerv2">
+					<div style="width:100%; text-align:center;">
+						<input type="button" value="Aceptar" id="btn-remove-document-yes" class="btn btn-primary"></input>
+						<input type="button" value="Cancelar" id="btn-remove-document-no" class="btn" style="color:#000000;"></input>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+	<!-- Aviso Descargando Documento Modal -->
+	<div class="modal" id="download-document-confirm" data-toggle="modal">
+		<div class="modal-dialogv2">
+			<div class="modal-content" style="background-color: #FFFFFF; color:#000000;">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+				</div>
+				<div class="container"></div>
+				<div class="modal-body row" style="text-align: left; width: 100%;" id="modal-aviso-legal">
+					<p style="text-align:center;font-size:18px;">El documento ha sido firmado, será eliminado una vez descargado.</p>
+				</div>
+
+				<div class="modal-footerv2">
+					<div style="width:100%; text-align:center;">
+						<input type="button" value="Aceptar" id="btn-download-document-yes" class="btn btn-primary"></input>
+						<input type="button" value="Cancelar" id="btn-download-document-no" class="btn" style="color:#000000;"></input>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+	<!-- Aviso Descargando Documento no firmado Modal -->
+	<div class="modal" id="download-ns-document-confirm" data-toggle="modal">
+		<div class="modal-dialogv2">
+			<div class="modal-content" style="background-color: #FFFFFF; color:#000000;">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+				</div>
+				<div class="container"></div>
+				<div class="modal-body row" style="text-align: left; width: 100%;" id="modal-aviso-legal">
+					<p style="text-align:center;font-size:18px;">El documento no ha sido aún firmado por todos los firmantes. ¿Desea descargarlo de todos modos?</p>
+				</div>
+
+				<div class="modal-footerv2">
+					<div style="width:100%; text-align:center;">
+						<input type="button" value="Aceptar" id="btn-download-ns-document-yes" class="btn btn-primary"></input>
+						<input type="button" value="Cancelar" id="btn-download-ns-document-no" class="btn" style="color:#000000;"></input>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Aviso Descargando Documento Rechazado Modal -->
+	<div class="modal" id="download-rejected-document-confirm" data-toggle="modal">
+		<div class="modal-dialogv2">
+			<div class="modal-content" style="background-color: #FFFFFF; color:#000000;">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+				</div>
+				<div class="container"></div>
+				<div class="modal-body row" style="text-align: left; width: 100%;" id="modal-aviso-legal">
+					<p style="text-align:center;font-size:18px;">El documento ha sido rechazado. Una vez descargado, será eliminado.</p>
+				</div>
+
+				<div class="modal-footerv2">
+					<div style="width:100%; text-align:center;">
+						<input type="button" value="Aceptar" id="btn-download-rejected-document-yes" class="btn btn-primary"></input>
+						<input type="button" value="Cancelar" id="btn-download-rejected-document-no" class="btn" style="color:#000000;"></input>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Sending Document Block Screen -->
+	<div class="modal" id="sending-modal" data-toggle="modal">
+		<div class="modal-dialog">
+			<div class="modal-contentv2">
+				<div class="centered">
+					<p style="text-align: center;">Enviando...</p>
+					<img style="width: 75px;" src="./ViDSigner Web Client_files/spinner.gif" alt="Login..." />
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Downloading Document Block Screen -->
+	<div class="modal" id="downloading-modal" data-toggle="modal">
+		<div class="modal-dialog">
+			<div class="modal-contentv2">
+				<div class="centered">
+					<p style="text-align: center;">Descargando...</p>
+					<img style="width: 75px; position: absolute; left: 0; right: 0; margin: auto;" src="./ViDSigner Web Client_files/spinner.gif" alt="Downloading..." />
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Loading Document Block Screen -->
+	<div id="loading-modal">
+		<div class="centered">
+			<img style="width: 75px; position: absolute; left: 0; right: 0; margin: auto;" src="./ViDSigner Web Client_files/spinner.gif" alt="Loading..."  />
+		</div>
+	</div>
+
+
+	<!-- <script type="text/javascript" src="{!URLFOR($Resource.VDJSS_jQuery)}"  ></script>  -->
+	<script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+	<script type="text/javascript" src="{!URLFOR($Resource.VDJSS_jQueryUI)}" ></script>
+	<script type="text/javascript" src="{!URLFOR($Resource.VDJSS_jQueryUITouch)}" ></script>
+	<script type="text/javascript" src="{!URLFOR($Resource.VDJSS_Bootsrap)}"></script>
+	<script type="text/javascript" src="{!URLFOR($Resource.VDJSS_scrollreveal)}"></script>
+	<script type="text/javascript"
+			src="{!URLFOR($Resource.VDJSS_jQueryEASING)}"></script>
+	<script type="text/javascript"
+			src="{!URLFOR($Resource.VDJSS_jQueryFittext)}"></script>
+	<script type="text/javascript" src="{!URLFOR($Resource.VDJSS_jQueryMagnific)}"></script>
+	<script type="text/javascript" src="{!URLFOR($Resource.VDJSS_jQueryMSelectEd)}"></script>
+	<link rel="stylesheet" href="{!URLFOR($Resource.VDJSS_jQueryMSelectEdCSS)}" type="text/css"/>
+	<!--<script src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.0.943/pdf.min.js'></script> -->
+	<script type="text/javascript" src="{!URLFOR($Resource.pdf_2_6_347)}"></script>
+	<script src='https://cdnjs.cloudflare.com/ajax/libs/interact.js/1.2.9/interact.min.js'></script>
+	<!--<script src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.0.943/pdf.worker.min.js'></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.pdfworker_2_6_347)}"></script>-->
+
+	<script src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.3.200/pdf.worker.min.js'></script>
+
+	<apex:slds />
+	<title>ViDSigner Web Client</title>
+	<script type="text/javascript" src="{!URLFOR($Resource.VDJSS_V1_2app)}" />
+	<script type="text/javascript" src="{!URLFOR($Resource.VDJSS_creative)}" />
+
+	<script type="text/javascript" src="{!URLFOR($Resource.VDJSS_Webcomponents)}" />
+	<link rel='import' href='https://docs-05-dot-polymer-project.appspot.com/0.5/components/core-ajax/core-ajax.html' />
+
+	<div class="modal custom fade in" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+		 aria-hidden="true" data-backdrop="static" data-keyboard="false" style="display: block;">
+		<div class="modal-dialog" id="myModal-dialog">
+			<div class="modal-content" style="color:white;">
+				<div class="modal-header" style="border-bottom: none; background-color: #00bf71;">
+					<img src="{!URLFOR($Resource.VDJSS_validated_white)}" id="login-logo" alt=""/>
+				</div>
+				<div class="modal-body" id="form-send-body" style="width: 100%;">
+					<div class="header-form">
+
+						<form action="https://sendto.vidsigner.net/uploadfile.php" method="post" enctype="multipart/form-data" id="frm-send">
+							<input type="hidden" name="file-b64-content" id="file-b64-content" />
+							<input type="hidden" name="url-b64-content" id="url-b64-content" />
+							<input type="hidden" name="signers-list-data" id="signers-list-data" />
+							<input type="hidden" name="file-name" id="file-name" />
+							<input type="hidden" name="signature-page" id="signature-page" value="1" />
+							<input type="hidden" name="signature-x" id="signature-x" value="66" />
+							<input type="hidden" name="signature-y" id="signature-y" value="4" />
+							<input type="hidden" name="signature-width" id="signature-width" value="60" />
+							<input type="hidden" name="signature-height" id="signature-height" value="20" />
+							<input type="hidden" name="language" id="language" value="es" />
+							<input type="hidden" name="question-page" id="question-page" value="1" />
+							<input type="hidden" name="question-x" id="question-x" value="10" />
+							<input type="hidden" name="question-y" id="question-y" value="250" />
+							<input type="hidden" name="question-width" id="question-width" value="150" />
+							<input type="hidden" name="question-height" id="question-height" value="10" />
+
+							<div style="clear:both;"></div>
+							<div id="msg-error" class="msg-error" style="display:none;"></div>
+							<div style="clear:both;"></div>
+							<br/>
+							<div id="panel-subscription-info" style="display: none;">
+								<div style="padding-bottom:10px;text-align:left;">
+									<span style="color: #434446">Introduzca los datos de la subscripción que desea utilizar:</span>
+								</div>
+								<div style="padding-bottom:10px">
+									<select class="form-control" id="environment" name="environment"  value="{!cx_environment}">
+										<option value="">PRE</option>
+										<option value="pre">PRE</option>
+										<option value="pro">PRO</option>
+									</select>
+								</div>
+								<div style="padding-bottom:10px">
+									<input type="text" class="form-control" id="subscription-user"
+										   name="subscription-user" placeholder="Subscripcion" required="" value="{!cx_subscription_user}" />
+								</div>
+								<div style="padding-bottom:10px">
+									<input type="password" class="form-control" id="subscription-pass"
+										   name="subscription-pass" placeholder="Contraseña" required="" value="{!cx_subscription_pass}" />
+								</div>
+								<br/>
+							</div>
+							<div id="panel-t-system-registry-info" style="display:none">
+								<div style="padding-bottom:10px;text-align:left;">
+									<span style="color: #000;">Indique el libro y el número de anotación</span>
+								</div>
+								<div style="padding-bottom:10px">
+									<select class="form-control" id="t-system-book" name="t-system-book" required="" style="background-color:#FFFFFF;">
+									</select>
+								</div>
+								<div style="padding-bottom:10px">
+									<input type="text" class="form-control" id="t-system-annotation-number"
+										   name="t-system-annotation-number" placeholder="Número de anotación..."
+										   required="" />
+								</div>
+								<br/>
+							</div>
+							<div id="panel-espublico-registry-info" style="display:none">
+								<div style="padding-bottom:10px;text-align:left;">
+									<span style="color: #000;">Indique el número de anotación</span>
+								</div>
+								<div style="padding-bottom:10px">
+									<input type="text" class="form-control" id="espublico-annotation-number"
+										   name="espublico-annotation-number" placeholder="Número de anotación..."
+										   required="" />
+								</div>
+								<br/>
+							</div>
+						</form>
+						<div id="panel-signer-info" style="display: block;">
+
+							<div id="div-signer-info" class="slds-col slds-size_4-of-12">
+								<h3 class="modal-title" style="color:#434446;">Firmantes</h3>
+								<div id="div-signers-pager" style="padding-bottom:10px;">
+									<table width="100%">
+										<tbody><tr>
+											<!--<td width="33%" style="text-align:right;"><img id="prev-signer" style="width:30px; cursor:pointer;" name="prev-signer" src="img/prev.png" alt="Prev signer" onmouseover="this.src = 'img/prev-hover.png'" onmouseout="this.src = 'img/prev.png'"></td>-->
+											<td width="33%"><img id="prev-signer" style="float: right;"
+																 alt="Prev signer" src="{!URLFOR($Resource.VDJSS_sendToleftarrow)}" class="icon"/></td>
+											<td width="33%" style="text-align:center; color: #434446;"><span id="current-signer">1</span> de <span id="num-signers">1</span></td>
+											<td width="33%"><img  id="next-signer" style="float: left"
+																  alt="Next signer" src="{!URLFOR($Resource.VDJSS_sendTorightarrow)}" class="icon"/></td>
+										</tr>
+										</tbody></table>
+								</div>
+								<apex:form Id="F-SLDS-INNER" >
+									<div style="padding-bottom:10px; display:none;" id="div-signature-type">
+										<apex:inputHidden id="signature-type" />
+									</div>
+
+									<!-- Selector de los certificados de usuario-->
+									<div style="padding-bottom:10px; display:none;" id="div-user-certificates">
+										<apex:inputHidden id="user-certificates" value="{!current_Signer.UserCertificateName}"  />
+									</div>
+									<div style="padding-bottom:5px">
+										<input type="text" class="form-control" id="signer-name"
+											   name="signer-name"
+											   placeholder="Nombre del firmante" required="" />
+									</div>
+									<div style="padding-bottom:5px" id="div-signer-id-type">
+										<input type="text" class="form-control" id="signer-id-type"
+											   name="signer-id-type" placeholder="Tipo de identificador. Ej: NIF" />
+									</div>
+									<div style="padding-bottom:5px" id="div-signer-id">
+										<input type="text" class="form-control" id="signer-id" name="signer-id"
+
+											   placeholder="Identificador del firmante. Ej: 12345678Z" />
+									</div>
+									<div style="padding-bottom:5px; display:none;" id="div-devices">
+										<input id="device" />
+									</div>
+									<!-- Selector de los certificados -->
+									<div style="padding-bottom:10px; display:none;" id="div-certificates">
+										<select class="form-control" id="certificates" name="certificates"
+
+										><option value="">Seleccione un certificado...</option><option value="014da938-9d0d-4098-b0b2-793eced3a61f">AUTANACRMStamper (1/27/2021)</option></select>
+									</div>
+									<!-- Campo del pin -->
+									<div style="padding-bottom:10px; display:none;" id="div-pin">
+										<apex:inputHidden id="signer-id-pin" value="{!current_Signer.StampCertificate.Pin}" />
+									</div>
+									<div style="padding-bottom: 10px;" id="div-phone-number">
+										<input type="text" class="form-control" id="phone-number"
+											   name="phone-number"
+											   placeholder="Número de teléfono. Ej: +34600600600" />
+									</div>
+									<div style="padding-bottom:5px">
+										<input type="email" class="form-control" id="signer-email"
+											   name="signer-email"
+											   placeholder="Email del firmante" required="" />
+									</div>
+									<div style="padding-bottom:10px; display:none;" id="div-signer-language" name="div-signer-language">
+										<apex:inputHidden id="signer-language"  /> </div>
+									<div style="padding-bottom: 10px;" id="div-email-subject">
+										<input type="text" class="form-control" id="email-subject"
+											   name="email-subject" placeholder="Asunto" />
+									</div>
+									<div style="padding-bottom: 10px;" id="div-email-body">
+											<textarea class="form-control" id="email-body" name="email-body"
+													  placeholder="Cuerpo del mensaje (500 caracteres máximo)"> </textarea>
+									</div>
+
+								</apex:form>
+								<div style="padding-bottom:10px; text-align:left;" id="div-send-signed-doc">
+									<input type="checkbox" name="send-signed-doc" id="send-signed-doc"
+										   style="margin-right: 10px"/><label for="send-signed-doc" style="color: #434446;">Enviar documento firmado</label>
+								</div>
+								<div style="padding-bottom:10px; text-align:left; display:none;" id="div-send-email-notification">
+									<input type="checkbox" name="send-email-notification"
+										   id="send-email-notification" style="margin-right: 10px"/><label for="send-email-notification" style="color: #434446;">Enviar notificación por correo</label>
+								</div>
+								<div style="padding-bottom:10px; text-align:left; display:none;" id="div-add-registration-number">
+									<input type="checkbox" name="add-registration-number"
+										   id="add-registration-number" style="margin-right: 10px"/><label for="add-registration-number" style="color: #888B8D;">Añadir número de registro</label>
+								</div>
+								<div style="padding-bottom:10px; padding-top: 10px;">
+									<table width="100%">
+										<tbody><tr>
+											<td style="text-align:left">
+												<!--<img class="btn-add-signer-form icon" name="btn-add-signer-form"
+                                                     src="svg/spreadsheet.svg" alt="Add signer form" />
+                                                <div id="button-with-icon" class="btn-add-questions-form" style="display: inline-block">
+                                                    <img class="icon-white" name="btn-add-questions-form"
+                                                         src="{!$Resource.VDJSS_send_ToAddFile}"  alt="Add question form" />
+                                                    <span id="button-with-icon-span">Añadir formulario</span>
+</div>--->
+												<div class="tooltip-container">
+													<div class="btn-add-questions-form" style="pointer-events: auto;">
+														<img class="icon-white" name="btn-add-questions-form"
+															 src="{!$Resource.VDJSS_send_ToAddFile}" alt="Add question form"/>
+														<span id="button-with-icon-span" style="color: rgb(67, 68, 70);">Añadir formulario</span>
+														<span class="tooltiptext">Disponible sólo con el primer firmante y firmas ordenadas</span>
+													</div>
+													<div style="margin-top: 20px" class="btn-add-signer">
+														<img class="icon-white" name="btn-add-signer"
+															 src="{!$Resource.VDJSS_sendToAdd}" alt="Add signer"/>
+														<span id="button-with-icon-span2">Añadir firmante</span>
+													</div></div>
+											</td>
+											<td style="text-align:right">
+												<img id="btn-remove-signer" name="btn-remove-signer"
+													 draggable="true" src="{!$Resource
+																 .VDJSS_sendToRemove}" alt="Remove signer"
+													 ondragstart="drag(event)" class="icon"/>
+											</td>
+										</tr>
+										</tbody></table>
+								</div>
+								<div style="padding-bottom:10px">
+									<div id="file-info-ok" style="color: #888B8D;">
+									</div>
+								</div>
+								<div style="padding-bottom:10px; display:none;" id="div-t-system-document-types">
+									<select class="form-control" id="t-system-document-types" name="t-system-document-types">
+									</select>
+								</div>
+								<div style="padding-bottom: 10px;" id="div-issuer-name">
+									<h3 class="modal-title" style="color:#434446;">Emisor</h3>
+									<input class="form-control" id="issuer-name"   value="{!ctx.IssuerName}"
+										   placeholder="Nombre del Emisor"/>
+								</div>
+								<div style="padding-bottom:10px; text-align:left;">
+									<input type="checkbox" name="signatures-ordered" id="signatures-ordered"
+										   style="margin-right: 10px" checked="{!ctx.OrderedSignatures}"/><label for="signatures-ordered" style="color: #434446;">Firmas ordenadas</label>
+								</div>
+								<!--<div style="padding-bottom:10px; text-align:left;">
+                                    <input type="checkbox" name="save-signers-data" id="save-signers-data"
+                                           style="margin-right: 10px"/><label for="save-signers-data" style="color: #434446;">Guardar los datos</label>
+                                </div>  -->
+							</div>
+							<div id="div-questions-info" style="display: none;">
+								<h3 class="modal-title" style="color:#434446;">Formulario</h3>
+								<div id="div-questions-pager" style="padding-bottom:10px;">
+									<table width="100%">
+										<tbody><tr>
+											<td width="33%"><img id="prev-question" style="float: right"
+																 name="prev-question" alt="Prev question"
+																 src="{!$Resource.VDJSS_sendToleftarrow}" class="icon" />  </td>
+											<td width="33%" style="text-align:center; color: #888B8D;"><span id="current-question">1</span> de <span id="num-questions">0</span></td>
+											<td width="33%"><img id="next-question" style="float: left"
+																 name="next-question" alt="Next question"
+																 src="{!$Resource.VDJSS_sendTorightarrow}" class="icon" /></td>
+										</tr>
+										</tbody></table>
+								</div>
+								<div style="padding-bottom:5px">
+									<input type="text" class="form-control" id="question-title" name="question-title"
+										   placeholder="Nueva pregunta..." required="" />
+								</div>
+								<div style="padding-bottom:10px">
+									<table width="100%" style="margin-top: 10px;">
+										<tbody><tr>
+											<td style="text-align:left">
+												<!--<button type="button" class="btn btn-dark btn-add-signer-form" id="btn-return-signer">Volver</button>-->
+												<img class="btn-add-signer-form icon" name="btn-add-signer-form"
+													 src="{!$Resource.VDJSS_sendToReturn}"
+													 alt="Add signer form" />
+											</td>
+											<td style="text-align:right">
+												<img id="btn-add-question" style="margin-right: 20px"
+													 name="btn-add-question"
+													 src="{!$Resource.VDJSS_sendToAdd}" alt="Add question"
+													 class="icon" />
+												<img id="btn-remove-question" name="btn-remove-question"
+													 src="{!$Resource.VDJSS_sendToRemove}"
+													 alt="Remove question" class="icon" />
+											</td>
+										</tr>
+										</tbody></table>
+								</div>
+							</div>
+							<div id="div-separator-preview" class="slds-col slds-size_4-of-12" ></div>
+							<div  class="slds-col slds-size_4-of-12">
+								<div id="div-preview-document" class="slds-size_1-of-1">
+									<h3 class="modal-title" style="color:#434446;">Documento</h3>
+									<div id="custom-pager" style="display: none; width: 396px;">
+										<table width="100%">
+											<tbody><tr>
+												<td width="30%" style="text-align:right"><img id="prev" name="prev" src="{!$Resource.VDJSS_sendToleftarrow}" alt="Prev page document" class="icon"/></td>
+												<td width="40%" style="text-align:center; color: #000;">Página: <span style="color: #000;" id="page_num">1</span> de <span style="color: #000;" id="page_count">1</span></td>
+												<td width="30%" style="text-align:left"><img id="next" name="next" src="{!$Resource.VDJSS_sendTorightarrow}" alt="Next page document" class="icon"/></td>
+											</tr>
+											</tbody></table>
+									</div>
+									<div id="msg-error-renderization" class="msg-error" style="display:none;width:90%; margin: 0 auto;"></div>
+									<div id="wating-preview-doc" style="width: 90%; margin: 8px auto 0px; text-align: center; display: block;">
+										<br/>
+										<img id="img-preview-document"
+											 style="display: none;vertical-align:middle;width:100px; margin: 0 auto;z-index: 9999;"
+											 src="{!$Resource.VDJSS_spinner2}" alt="Preview document..."/>
+										<div id="div-drag" style="display: block;">
+											<div style="padding-bottom:10px">
+												<input type="file" name="file-to-upload" id="file-to-upload"
+													   accept="image/*,.pdf,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+													   required=""/>
+											</div>
+											<div id="div-preview" style="display: block;">
+												<div id="filedrag"  ondrop="drop(event)" ondragover="allowDrop(event)" >
+													<div Id="loadFile-here" style="display: none;" >
+														<br/>
+														<i class="fa fa-upload fa-5x" aria-hidden="true"/>
+
+														<br/>
+														<label>
+															<span class="select-file">Seleccione un archivo PDF</span><br/>
+															<span class="select-file"> o arrastrelo hasta aquí</span>
+														</label>
+													</div>
+													<div id="opaque-one" style="display: block;"  >
+														<div id="spinner" style="left: 50%;margin-left: -4em;">
+															<img id="img-preview-document-slds" style="display:inline-block;
+									vertical-align:middle;width:100px; margin: 0 auto;z-index: 1999;"
+																 src="{!$Resource.VDJSS_spinner2}" alt="Preview document..."/>
+														</div>
+													</div>
+
+
+												</div>
+											</div>
+										</div>
+									</div>
+									<br/>
+									<!--<div id="txt-info-doc" class="txt-info" style="display:none;">
+                                        <span style="color: #000;">(*) Coloque el recuadro de firma en la posición que deseé.</span><br/>
+                                        <span style="color: #000;">(*) Ajuste el tamaño del recuadro de firma.</span>
+                                    </div>-->
+									<div>
+										<div id="preview-doc" style="display: none; width: 396px; height: 561px;">
+											<img id="btn-change-file" src="{!$Resource.VDJSS_sendToCross}" alt="Change file"/>
+											<div id="pageContainer" class="pdfViewer singlePageView dropzone nopadding" style="background-color:transparent">
+												<canvas id="canvas-doc" width="396" height="561"
+														style="display: none;"></canvas>
+											</div>
+											<canvas id="canvas-doc-form" width="396" height="561" style="display: none;"></canvas>
+											<img id="canvas-preview-doc" style="float: left; border-style: solid; border-color: rgb(0, 143,85); border-width: 2px; width: 396px; height: 561px;"/>
+
+											<div id="preview-signature" class="ui-draggable ui-resizable" style="width: 113.386px; height: 37.7953px; left: 124.724px; top: 7.55906px; display: inherit;">
+												<!--<div id="signature-number"></div>-->
+												<div class="ui-resizable-handle ui-resizable-e" style="z-index: 1000;"></div><div class="ui-resizable-handle ui-resizable-s" style="z-index: 1000;"></div><div class="ui-resizable-handle ui-resizable-se ui-icon ui-icon-gripsmall-diagonal-se" style="z-index: 1000;"></div></div>
+											<div id="preview-form-question" style="display: none; width: 283px; height: 18px; left: 18px; top: 472px;" class="ui-draggable ui-resizable">
+												<!--<div id="question-number"></div>-->
+												<div class="ui-resizable-handle ui-resizable-e" style="z-index: 1000;"></div><div class="ui-resizable-handle ui-resizable-w" style="z-index: 1000;"></div></div>
+										</div>
+										<div id="div-btn-send" style="display: none;">
+											<input type="button" value="Enviar a Firmar" id="btn-send" name="btn-send" class="btn btn-primary"/>
+											<img id="img-sending" style="display:none;vertical-align:button;width:40px;margin-right:20px;"
+												 src="{!$Resource.VDJSS_spinner2}" alt="Sending document..."/>
+											<!--<button type="button" class="btn btn-dark" id="btn-close" data-dismiss="modal">Cerrar</button>-->
+										</div>
+									</div>
+									<div id="sf-document-list" class="slds-size_1-of-1" >
+										<apex:form Id="SECONDF-INNER">
+
+											<polymer-element name="img-slider" noscript="true">
+												<template>
+													<style>
+														* {
+															-webkit-box-sizing: border-box;
+															-moz-box-sizing: border-box;
+															-ms-box-sizing: border-box;
+															box-sizing: border-box;
+														}
+														.slds-spinner_container{
+															display: block;
+														}
+														#slider {
+															max-width: 600px;
+															text-align: center;
+															margin: 0 auto;
+														}
+
+														#overflow {
+															width: 100%;
+															overflow: hidden;
+														}
+
+														#slides .inner {
+															width: 400%;
+														}
+
+														#slides .inner {
+															-webkit-transform: translateZ(0);
+															-moz-transform: translateZ(0);
+															-o-transform: translateZ(0);
+															-ms-transform: translateZ(0);
+															transform: translateZ(0);
+
+															-webkit-transition: all 800ms cubic-bezier(0.770, 0.000, 0.175, 1.000);
+															-moz-transition: all 800ms cubic-bezier(0.770, 0.000, 0.175, 1.000);
+															-o-transition: all 800ms cubic-bezier(0.770, 0.000, 0.175, 1.000);
+															-ms-transition: all 800ms cubic-bezier(0.770, 0.000, 0.175, 1.000);
+															transition: all 800ms cubic-bezier(0.770, 0.000, 0.175, 1.000);
+
+															-webkit-transition-timing-function: cubic-bezier(0.770, 0.000, 0.175, 1.000);
+															-moz-transition-timing-function: cubic-bezier(0.770, 0.000, 0.175, 1.000);
+															-o-transition-timing-function: cubic-bezier(0.770, 0.000, 0.175, 1.000);
+															-ms-transition-timing-function: cubic-bezier(0.770, 0.000, 0.175, 1.000);
+															transition-timing-function: cubic-bezier(0.770, 0.000, 0.175, 1.000);
+														}
+														/* The Modal (background) */
+														.modal {
+															display: none; /* Hidden by default */
+															position: fixed; /* Stay in place */
+															z-index: 1; /* Sit on top */
+															padding-top: 100px; /* Location of the box */
+															left: 0;
+															top: 0;
+															width: 100%; /* Full width */
+															height: 100%; /* Full height */
+															overflow: auto; /* Enable scroll if needed */
+															background-color: rgb(0,0,0); /* Fallback color */
+															background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+														}
+
+														/* Modal Content */
+														.modal-content {
+															background-color: #fefefe;
+															margin: auto;
+															padding: 20px;
+															border: 1px solid #888;
+															width: 80%;
+														}
+
+														/* The Close Button */
+														.close {
+															color: #aaaaaa;
+															float: right;
+															font-size: 28px;
+															font-weight: bold;
+														}
+
+														.close:hover,
+														.close:focus {
+															color: #000;
+															text-decoration: none;
+															cursor: pointer;
+														}
+														#slides ::content img {
+															width: 25%;
+															float: left;
+														}
+
+														#slide1:checked ~ #slides .inner {
+															margin-left: 0;
+														}
+
+														#slide2:checked ~ #slides .inner {
+															margin-left: -100%;
+														}
+
+														#slide3:checked ~ #slides .inner {
+															margin-left: -200%;
+														}
+
+														#slide4:checked ~ #slides .inner {
+															margin-left: -300%;
+														}
+
+														input[type="radio"] {
+															display: none;
+														}
+
+														label {
+															background: #CCC;
+															display: inline-block;
+															cursor: pointer;
+															width: 10px;
+															height: 10px;
+															border-radius: 5px;
+														}
+														#slide1:checked ~ label[for="slide1"],
+														#slide2:checked ~ label[for="slide2"],
+														#slide3:checked ~ label[for="slide3"],
+														#slide4:checked ~ label[for="slide4"] {
+															background: #333;
+														}
+													</style>
+													<div id="slider">
+														<apex:repeat value="{!docPlainList}" var="docItem" rows="1" >
+															<input checked="" type="radio" name="slider" id="slide1"
+																   selected="false" />
+														</apex:repeat>
+														<apex:repeat value="{!docPlainList}" var="docItem" first="1" >
+															<input type="radio" name="slider" id="{! 'slide' &
+													TEXT(docItem.theIndex)}" selected="false" />
+														</apex:repeat>
+														<div id="slides">
+															<div id="overflow">
+																<div class="inner">
+																	<content select="img"></content>
+																</div> <!-- .inner -->
+															</div> <!-- #overflow -->
+														</div>
+														<apex:repeat value="{!docPlainList}" var="docItem">
+															<label for="{! 'slide' &
+													TEXT(docItem.theIndex)}"></label>
+														</apex:repeat>
+													</div>
+												</template>
+											</polymer-element>
+											<img-slider>
+												<apex:repeat value="{!docPlainList}" var="docItem" >
+													<img id="{!docItem.theContentVersionId}" src="{!URLFOR('/sfc/servlet.shepherd/version/renditionDownload?rendition=THUMB720BY480&versionId='+ docItem.theContentVersionId)}" alt="{!docItem.theTitle & '.' & docItem.theFileExtension}" style="margin-left: auto; margin-right: auto; height: 180px; width: auto;" draggable="true" ondragstart="drag(event);"/>
+												</apex:repeat>
+											</img-slider>
+										</apex:form>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div style="text-align: center;">
+							<div id="result"></div>
+						</div>
+					</div>
+					<div style="clear:both;"></div>
+					<div class="modal-footer" style="float:left; width:100%; border-bottom: none; border-top: none;">
+						<div id="div-btn-registry" style="display:none;">
+							<input type="button" value="Cargar datos" id="btn-registry-ok" name="btn-registry-ok"
+								   class="btn btn-primary" style="display: inline;"/>
+							<img id="img-registry-ok" style="display:none;vertical-align:button;width:40px;margin-right:20px;" src="{!$Resource.VDJSS_spinner2}" alt="Loading..."/>
+							<button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+						</div>
+						<div id="div-btn-login" style="display: none;">
+							<input type="button" value="Entrar" id="btn-login" name="btn-login"
+								   class="btn btn-primary" style="display: inline;"/>
+							<img id="img-login" style="display: none; width: 40px; margin-right: 20px;"
+								 src="{!$Resource.VDJSS_spinner2}" alt="Login..."/>
+						</div>
+						<div id="div-btn-new-form" style="display: none">
+							<input type="button" value="Crear" id="btn-new-form" name="btn-new-form"
+								   class="btn btn-primary"/>
+							<!--<img id="img-login" style="display:none;vertical-align:button;width:40px;margin-right:20px;" src="./img/spinner.gif" alt="Login..." />-->
+						</div>
+					</div>
+				</div>
+				<div  id="result-body" style="display: none; width: 100%!important;height: 100%">
+					<div class="modal-dialogv2">
+						<div class="modal-content" style="background-color: #FFFFFF; color:#000000;">
+							<div class="modal-header">
+								<h3 class="modal-title" style="text-align:center;font-size:20px;" >Documento enviado</h3>
+							</div>
+							<div class="container"></div>
+							<div  style="text-align: center; width: 100%;" id="modal-aviso-legal">
+								<p style="text-align:center;font-size:18px;">El documento ha sido enviado a firmar exitosamente</p>
+							</div>
+
+							<div class="modal-footerv2">
+								<div style="width:100%; text-align:center;">
+									<input type="button" value="Finalizar" id="btn-finish-upload" name="btn-finish-upload"
+										   class="btn btn-primary"/>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	</body>
+	<!-- Javascript -->
+
+	<script type = "text/javascript">
+		var pdfjsLib = window['pdfjs-dist/build/pdf'];
+
+		const { degrees, PDFDocument, rgb, StandardFonts } = PDFLib;
+		async function modifyPdf(URI,fileName, objectId) {
+			// Fetch an existing PDF document
+			const existingPdfBytes = await fetch(URI).then(res => res.arrayBuffer())
+
+			// Load a PDFDocument from the existing PDF bytes
+			const pdfDoc = await PDFDocument.load(existingPdfBytes)
+
+			// Embed the Helvetica font
+			const helveticaFont = await pdfDoc.embedFont(StandardFonts.Helvetica)
+
+			// Get the first page of the document
+			const pages = pdfDoc.getPages()
+			const firstPage = pages[0]
+
+			// Get the width and height of the first page
+			const { width, height } = firstPage.getSize()
+
+			// Draw a string of text diagonally across the first page
+			firstPage.drawText('B O R R A D O R', {
+				x: 5,
+				y: height / 2 + 300,
+				size: 50,
+				font: helveticaFont,
+				color: rgb(0.95, 0.1, 0.1),
+				rotate: degrees(-45),
+			})
+
+			// Serialize the PDFDocument to bytes (a Uint8Array)
+			const pdfBytes = await pdfDoc.save()
+			console.log('Bites');
+			console.log(pdfBytes);
+			let draftContent =   base64ArrayBuffer(pdfBytes);
+			let tempSignerList = JSON.parse(JSON.stringify(signersList));
+			delete tempSignerList[0].Form;
+			return new Promise(function(resolve, reject) {
+				Visualforce.remoting.Manager.invokeAction(
+						//Invoking controller action getcon
+						'{!$RemoteAction.VDSingerPDFViewerController.sendPreviousMail}',
+						fileName,objectId,JSON.stringify(tempSignerList),draftContent,
+						function (response, event) {
+							console.log(response + event);
+							if (event.status) {
+								console.log(response);
+								response = response.toString();
+								console.log(response);
+								resolve( response);
+							}else{
+								reject('Error');
+							}
+						},
+						{escape: false, buffer: true}
+				);
+			});
+			// Trigger the browser to download the PDF document
+		}
+		function base64ArrayBuffer(arrayBuffer) {
+			var base64    = ''
+			var encodings = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+
+			var bytes         = new Uint8Array(arrayBuffer)
+			var byteLength    = bytes.byteLength
+			var byteRemainder = byteLength % 3
+			var mainLength    = byteLength - byteRemainder
+
+			var a, b, c, d
+			var chunk
+
+			// Main loop deals with bytes in chunks of 3
+			for (var i = 0; i < mainLength; i = i + 3) {
+				// Combine the three bytes into a single integer
+				chunk = (bytes[i] << 16) | (bytes[i + 1] << 8) | bytes[i + 2]
+
+				// Use bitmasks to extract 6-bit segments from the triplet
+				a = (chunk & 16515072) >> 18 // 16515072 = (2^6 - 1) << 18
+				b = (chunk & 258048)   >> 12 // 258048   = (2^6 - 1) << 12
+				c = (chunk & 4032)     >>  6 // 4032     = (2^6 - 1) << 6
+				d = chunk & 63               // 63       = 2^6 - 1
+
+				// Convert the raw binary segments to the appropriate ASCII encoding
+				base64 += encodings[a] + encodings[b] + encodings[c] + encodings[d]
+			}
+
+			// Deal with the remaining bytes and padding
+			if (byteRemainder == 1) {
+				chunk = bytes[mainLength]
+
+				a = (chunk & 252) >> 2 // 252 = (2^6 - 1) << 2
+
+				// Set the 4 least significant bits to zero
+				b = (chunk & 3)   << 4 // 3   = 2^2 - 1
+
+				base64 += encodings[a] + encodings[b] + '=='
+			} else if (byteRemainder == 2) {
+				chunk = (bytes[mainLength] << 8) | bytes[mainLength + 1]
+
+				a = (chunk & 64512) >> 10 // 64512 = (2^6 - 1) << 10
+				b = (chunk & 1008)  >>  4 // 1008  = (2^6 - 1) << 4
+
+				// Set the 2 least significant bits to zero
+				c = (chunk & 15)    <<  2 // 15    = 2^4 - 1
+
+				base64 += encodings[a] + encodings[b] + encodings[c] + '='
+			}
+
+			return base64
+		}
+		function winClose()
+		{
+			self.close();
+		}
+	</script>
+	<!-- End of Javascript-->
+
+
+	<script>
+		Visualforce.remoting.timeout = 120000; // Set timeout at page level
+		var mapOfDocNames = new Map();
+		var currentDocId = null;
+		let isLoadingVFPage = true;
+		const notificationURL = "{!NotificationURL}";
+		// getElementById
+		function $id(id) {
+			return document.getElementById(id);
+		}
+		function getDraftDocument(){
+			let formulario = document.getElementById('frm-send');
+			const theData = new FormData(formulario);
+		}
+		function showSpinner()
+		{
+			var drop = document.getElementsByClassName('slds-spinner_container');
+
+
+			drop.style.display= 'none';
+
+
+
+		}
+
+
+		function loadContract(strDocumentId, pageName) {
+			return new Promise(function(resolve, reject) {
+				Visualforce.remoting.Manager.invokeAction(
+						'{!$RemoteAction.VDSingerPDFViewerController.generateContract}',
+						strDocumentId, pageName,
+						function (result, event) {
+							if (event.status) {
+								if(result){
+									// Get DOM IDs for HTML and Visualforce elements like this
+									let arrayBufferFile = Base64Binary.decodeArrayBuffer(result);
+									let file = new File([arrayBufferFile], pageName + '.pdf', {
+										type:
+												"application/pdf"
+									});
+									//let file = 'data:application/pdf;base64,' + result;
+									//file.name = mapOfDocNames.get(currentDocId);
+									ParseFile(file);
+									resolve( result);
+								}
+								else{
+									resolve("OK");
+								}
+
+							} else if (event.type === 'exception') {
+								console.log(event.message + "<br/>\n<pre>" + event.where + "</pre>");
+								reject('Error');
+							} else {
+								reject('Error');
+								console.log(event.message);
+							}
+						},
+						{escape: false, buffer: true}
+				);
+			});
+		}
+
+
+
+
+
+		function getRemoteVersionData(strDocumentId) {
+			Visualforce.remoting.Manager.invokeAction(
+					'{!$RemoteAction.VDSingerPDFViewerController.getVersionData}',
+					strDocumentId,
+					function(result, event){
+						if (event.status) {
+							// Get DOM IDs for HTML and Visualforce elements like this
+							let arrayBufferFile = Base64Binary.decodeArrayBuffer(result);
+							let file = new File([arrayBufferFile], mapOfDocNames.get(currentDocId), {type:
+										"application/pdf"});
+							//let file = 'data:application/pdf;base64,' + result;
+							//file.name = mapOfDocNames.get(currentDocId);
+							ParseFile(file);
+						}
+						else if (event.type === 'exception') {
+							console.log(event.message + "<br/>\n<pre>" + event.where + "</pre>");
+						} else {
+							console.log(event.message);
+						}
+					},
+					{escape: false}
+			);
+		}
+		function uploadAPEXJob(objectId,jsonData) {
+			return new Promise(function(resolve, reject) {
+				Visualforce.remoting.Manager.invokeAction(
+						//Invoking controller action getcon
+						'{!$RemoteAction.VDSingerPDFViewerController.uploadDoc}',
+						objectId, JSON.stringify(jsonData),
+						function (response, event) {
+							console.log(response + event);
+							if (event.status) {
+								console.log(response);
+								response = response.toString();
+								console.log(response);
+								resolve( response);
+							}else{
+								reject('Error');
+							}
+						},
+						{escape: false, buffer: false}
+				);
+			});
+
+		}
+
+		// output information
+		function Output(msg) {
+			var m = $id("messages");
+			m.innerHTML = msg + m.innerHTML;
+		}
+
+		function drag(ev) {
+			console.log(JSON.stringify(ev, Object.getOwnPropertyNames(ev)));
+			ev.dataTransfer.setData("text", ev.target.id);
+			currentDocId = ev.target.id;
+			mapOfDocNames.set(ev.target.id, ev.target.alt);
+		}
+		function allowDrop(ev){
+			ev.preventDefault();
+		}
+		function drop(ev){
+			ev.preventDefault();
+			var data = ev.dataTransfer.getData("text");
+			if(data){
+				getRemoteVersionData(data);
+			}
+
+
+		}
+		// file drag hover
+		function FileDragHover(e)  {
+			if (e.cancelable) {
+				e.stopPropagation();
+				e.preventDefault();
+				e.target.className = (e.type == "dragover" ? "hover" : "");
+			}
+		}
+		$("#btn-change-file").click(function () {
+			files = {};
+			$('#preview-doc').hide();
+			$('#div-btn-send').css('display', 'none');
+			$("#custom-pager").css('display', 'none');
+			$("#div-drag").css('display', 'block');
+			$('#div-preview').show();
+			$('#wating-preview-doc').show();
+			$("#file-info-ok").html("");
+			var b64 = $id("file-b64-content"),
+					docname = $id("file-name");
+			b64.value = null;
+			docname.value = null;
+		});
+
+
+		// file selection
+		function FileSelectHandler(e) {
+			// cancel event and hover styling
+			FileDragHover(e);
+			// fetch FileList object
+			var files = e.target.files || e.dataTransfer.files;
+
+			// process all File objects
+			for (var i = 0, f; f = files[i]; i++) {
+				ParseFile(f);
+			}
+
+		}
+		var accept = {
+			binary : ["image/png", "image/jpeg"],
+			text   : ["text/plain", "application/pdf", "application/xml", "text/html"]
+		};
+		// output file information
+		function ParseFile(file) {
+			clearCanvas(1);
+			$("#msg-error").html();
+			$("#msg-error").hide();
+			$('#msg-error-renderization').html();
+			$('#msg-error-renderization').hide();
+			var error = false;
+			//var ext = (file.name).match(/\.(.+)$/)[1];
+			var indexExt = (file.name).lastIndexOf(".");
+			var ext = "";
+			if (indexExt > 0) {
+				ext = (file.name).substring(indexExt + 1);
+			}
+			if ((ext != "pdf") && (ext != "PDF") && (ext != "png") && (ext != "jpg")) {
+				error = true;
+			}
+			if (!error) {
+				var sizeStr = "";
+				var sizeKB = file.size / 1024;
+				var sizeLimitExceeded = false;
+				if (parseInt(sizeKB) > 1024) {
+					var sizeMB = sizeKB / 1024;
+					sizeStr = sizeMB.toFixed(2) + " MB";
+					if (sizeMB.toFixed(2) > 20) {
+						sizeLimitExceeded = true;
+					}
+				}
+				else {
+					sizeStr = sizeKB.toFixed(2) + " KB";
+				}
+				if (!sizeLimitExceeded) {
+					pageNum = 0;
+					$("#page_num").val('1');
+					$("#page_count").val('1');
+					$("#file-info-ok").html("<img src='svg/sendTo-file.svg' class='icon' style='width: 25px; height: 25px; display: block; margin: auto; margin-bottom: 10px;' alt='Pdf icon'/>" + file.name + " " + "[" + sizeStr + "]");
+					$("#file-name").val(file.name);
+					$('#preview-doc').hide();
+					$('#preview-doc').css('display', 'none');
+					$('#wating-preview-doc').show();
+					$("#img-preview-document").css('display', 'absolute');
+					$("#div-drag").css('display', 'none');
+					var reader = new FileReader();
+					reader.onload = function () {
+						fileContent = reader.result;
+						console.log('reader result---->');
+						console.log(fileContent);
+						// var data = encodeURIComponent(fileContent.substring((fileContent.indexOf(",")) + 1));
+						var data = fileContent.substring((fileContent.indexOf(",")) + 1);
+						console.log('REVISAR');
+						console.log(data);
+
+						$("#url-b64-content").val(fileContent);
+						$("#file-b64-content").val(fileContent.substring((fileContent.indexOf(",")) + 1));
+						//$("#img-preview-document").css('display', 'none');
+
+						document.getElementById('page_count').textContent = pageNum;
+						$("#custom-pager").css('display', 'block');
+						$('#div-btn-send').css('display', 'block');
+
+						//renderFile(fileContent);
+						$('#wating-preview-doc').show();
+						renderAllPages(fileContent);
+
+						$('#preview-doc').show();
+						$('#div-preview').hide();
+						$("#custom-pager").css('display', 'block');
+						$("#txt-info-doc").css('display', 'block');
+
+					};
+					reader.readAsDataURL(file);
+					$('#preview-doc').hide();
+					$('#wating-preview-doc').show();
+					$('#preview-document').modal('show');
+
+				} else {
+					$("#msg-error").html('<span>El archivo excede el tamaño máximo permitido (20 MB)</span>');
+					$("#msg-error").show();
+					$("#file-info-ok").html("");
+					$("#file-to-upload").val("");
+					$('#file-b64-content').val("");
+					$('#file-name').val("");
+				}
+			} else {
+				$("#msg-error").html('<span>El documento seleccionado no es un PDF.</span>');
+				$("#msg-error").show();
+				$("#file-info-ok").html("");
+				$("#file-to-upload").val("");
+				$('#file-b64-content').val("");
+				$('#file-name').val("");
+			}
+		}
+		'use strict';
+		let contractId = "{!objectId}";
+		var filePageWmm = 210;
+		var filePageHmm = 297;
+		var files;
+		var PagesContent = [];
+		var pdfDoc = null,
+				pageRendering = false,
+				pageNumPending = null,
+				canvas = document.getElementById('canvas-doc'),
+				ctx = canvas.getContext('2d');
+		var maxCanvasWidth = 400;
+		var pdf = null;
+		var canvasWidth=0;
+		var canvasHeight=0;
+		var qtyPagesTotal =0;
+		var gtyGenered =0;
+		var pageStarts=new Array();
+		pageStarts[0]=0;
+
+		function waitTillDone (){
+			return new Promise(function(resolve, reject){
+				var intervalId = setInterval(function(){
+					let total = parseInt(qtyPagesTotal);
+					let createdPages = parseInt(gtyGenered);
+					console.log('pageNumPending: ' + pageNumPending);
+					if( pageNumPending != null) {
+						return;
+					}else{
+
+						clearInterval(intervalId);
+						resolve('TODAS RENDERIZADAS');
+
+					}
+
+				}, 1000);
+			});
+		}
+		// The workerSrc property shall be specified. //
+		pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.3.200/pdf.worker.min.js';
+		var pdfImageURLs = [];
+
+		function  renderAllPages(url){
+			$.when (sendTestByAjax(url)).done(function () {
+				if (pdfImageURLs.length <= 0){
+					pdfImages = [];
+					pdfImageURLs = [];
+					gtyGenered = 0;
+					pdfjsLib.disableWorker = true;
+					pdfjsLib.getDocument(url).promise.then( async function(_pdf) {
+						$('#preview-doc').css('display', 'block');
+						$('#canvas-preview-doc').show();
+						pdf = _pdf;
+						qtyPagesTotal = pdf.numPages;
+						console.log('obtuvo document');
+						console.log(pdf);
+
+						queueRenderPage(1);
+						const esperar = await waitTillDone();
+						wenAllDone();
+					}).catch(error => console.log(`Error in executing getdocument ${error}`));
+				}
+			});
+		}
+		function sendTestByAjax(fileContent){
+			var dataInp = fileContent.substring((fileContent.indexOf(",")) + 1);
+			$('#preview-doc').css('display', 'none');
+			$('#canvas-preview-doc').hide();
+			$('#div-btn-send').css('display', 'none');
+			$("#custom-pager").css('display', 'none');
+			$('#div-preview').show();
+			$('#wating-preview-doc').show();
+			$("#img-preview-document").css('display', 'block');
+			pdfImageURLs = [];
+
+			$("#file-info-ok").html("");
+			try{
+				$.ajax({
+					url: "https://cors-anywhere.herokuapp.com/https://sendto.vidsigner.net/renderization.php",
+					type: 'POST',
+					async: true,
+					cache: false,
+					contentType: "application/x-www-form-urlencoded",
+					data: "environment=PRE&subscription-user=AUTANACRMSubscriptionDemo&subscription-pass=ZNpeaY6Mt7F486b7n67q&file-b64-content=" + encodeURIComponent(dataInp),
+					done: function (data) {
+						if (data.indexOf("Error:") >= 0) {
+							$('#wating-preview-doc').hide();
+							$('#msg-error-renderization').html('<span>Error al previsualizar el PDF.</span>');
+							$('#msg-error-renderization').show();
+						} else {
+							$("#img-preview-document").css('display', 'none');
+							$('#preview-doc').css('display', 'flow');
+							$('#canvas-preview-doc').show();
+							var dataObject = JSON.parse(data);
+							console.log(dataObject);
+							pdfImages = dataObject.DocPageRendered;
+
+							qtyPagesTotal = pdfImages.length;
+							for(var i = 0; i < pdfImages.length; i++){
+								pdfImageURLs.push("data:image/png;base64," + pdfImages[i]);
+							}
+							pdfNumPage = pdfImageURLs.length;
+							console.log('PDF_IMAGES');
+							console.log(pdfImageURLs);
+
+							document.getElementById('page_count').textContent = pdfNumPage;
+							$("#custom-pager").css('display', 'block');
+							$('#div-btn-send').css('display', 'block');
+							//Con esto miramos el tamaño de las páginas del PDF
+							var defaultPage = new Image();
+							defaultPage.onload = function () {
+								filePageWmm = parseInt(this.width * 0.1693548387096774);
+								filePageHmm = parseInt(this.height * 0.1693548387096774);
+								// initPreviewValues(filePageWmm, filePageHmm, pdfNumPage);
+								if (signersList[currentSigner].Visible.Page > pdfNumPage) {
+									signersList[currentSigner].Visible.Page = 1;
+								}
+								pageNum = parseInt(signersList[currentSigner].Visible.Page);
+								renderPage(0);
+								//If signature position is wrong for current document, reset to default values
+								if (((parseInt(signersList[currentSigner].Visible.PosX) + parseInt(signersList[currentSigner].Visible.SizeX)) > parseInt(filePageWmm)) || ((parseInt(signersList[currentSigner].Visible.PosY) + parseInt(signersList[currentSigner].Visible.SizeY)) > parseInt(filePageHmm))) {
+									signersList[currentSigner].Visible.PosX = 10;
+									signersList[currentSigner].Visible.PosY = 10;
+								}
+								$("#preview-signature").css("width", (parseInt(signersList[currentSigner].Visible.SizeX) / pixelToMMFactor) / scale + "px");
+								$("#preview-signature").css("height", (parseInt(signersList[currentSigner].Visible.SizeY) / pixelToMMFactor) / scale + "px");
+								$("#preview-signature").css("left", (parseInt(signersList[currentSigner].Visible.PosX) / pixelToMMFactor) / scale + "px");
+								$("#preview-signature").css("top", (parseInt(signersList[currentSigner].Visible.PosY) / pixelToMMFactor) / scale + "px");
+								$('#wating-preview-doc').hide();
+								$('#preview-doc').show();
+								$('#div-preview').hide();
+								$("#custom-pager").css('display', 'block');
+								$("#txt-info-doc").css('display', 'block');
+							};
+							defaultPage.src = "data:image/png;base64," + pdfImages[0];
+							return pdfImageURLs;
+
+						}
+					},
+					fail: function (xhr, status, error){
+						pdfImageURLs= [];
+						return pdfImageURLs;
+					}
+				});
+			}catch(e){
+				pdfImageURLs= [];
+				return pdfImageURLs;
+
+			}
+
+		}
+
+
+		let  onLoadImage = function() {
+			console.log('ENTRA L ONLOAD IMAFEN ' + this);
+			//ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+			filePageWmm = (parseInt(this.width * 0.1693548387096774)) || filePageWmm ;
+			filePageHmm = (parseInt(this.height * 0.1693548387096774)) || filePageHmm;
+			console.log('filePageWmm +  filePageHmm ' + filePageWmm +  filePageHmm);
+			initPreviewValues(filePageWmm, filePageHmm,  qtyPagesTotal);
+			if (signersList[currentSigner].Visible.Page > qtyPagesTotal) {
+				signersList[currentSigner].Visible.Page = 1;
+			}
+			//pageNum = signersList[currentSigner].Visible.Page;
+			//If signature position is wrong for current document, reset to default values
+			if (((parseInt(signersList[currentSigner].Visible.PosX) + parseInt(signersList[currentSigner].Visible.SizeX)) > parseInt(filePageWmm)) || ((parseInt(signersList[currentSigner].Visible.PosY) + parseInt(signersList[currentSigner].Visible.SizeY)) > parseInt(filePageHmm))) {
+				signersList[currentSigner].Visible.PosX = 10;
+				signersList[currentSigner].Visible.PosY = 10;
+			}
+			$("#preview-signature").css("width", (parseInt(signersList[currentSigner].Visible.SizeX) / pixelToMMFactor) / scale + "px");
+			$("#preview-signature").css("height", (parseInt(signersList[currentSigner].Visible.SizeY) / pixelToMMFactor) / scale + "px");
+			$("#preview-signature").css("left", (parseInt(signersList[currentSigner].Visible.PosX) / pixelToMMFactor) / scale + "px");
+			$("#preview-signature").css("top", (parseInt(signersList[currentSigner].Visible.PosY) / pixelToMMFactor) / scale + "px");
+			$("#img-preview-document").css('display', 'none');
+			$('#wating-preview-doc').hide();
+			$('#preview-doc').show();
+			$('#div-preview').hide();
+			$("#custom-pager").css('display', 'block');
+			$("#txt-info-doc").css('display', 'block');
+		};
+		function wenAllDone() {
+			pdfNumPage = pdfImageURLs.length;
+			document.getElementById('page_count').textContent = qtyPagesTotal;
+			$("#custom-pager").css('display', 'block');
+			$('#div-btn-send').css('display', 'block');
+			renderPage(0);
+
+
+		}
+		function renderFile(fileContent){
+
+			pdfjsLib.getDocument(fileContent).promise.then(function(pdfDoc_) {
+						pdfDoc = pdfDoc_;
+						document.getElementById('page_count').textContent = pdfDoc.numPages;
+						renderPage(pageNum);
+
+					}
+			);
+		}
+		// initialize
+		function Init() {
+			var fileselect = $id("file-to-upload"),
+					filedrag = $id("filedrag");
+
+			// file select
+			fileselect.addEventListener("change", FileSelectHandler, false);
+
+			// is XHR2 available?
+			var xhr = new XMLHttpRequest();
+			if (xhr.upload) {
+				// file drop
+				filedrag.addEventListener("dragover", FileDragHover, false);
+				filedrag.addEventListener("dragleave", FileDragHover, false);
+				filedrag.addEventListener("drop", FileSelectHandler, false);
+			}
+
+			fileselect.onclick = function () {
+				this.value = null;
+			};
+
+		}
+
+		// call initialization file
+		if (window.File && window.FileList && window.FileReader) {
+			Init();
+		}
+	</script>
+	<style>
+		#the-canvas {
+			border: 1px solid black;
+			direction: ltr;
+		}
+	</style>
+	<script>
+
+		var thePromises;
+		var issuerName;
+		var defaultPageName;
+
+
+		$(document).ready(function() {
+			thePromises = [];
+			issuerName = "{!ctx.IssuerName}";
+			defaultPageName = "{!preLoadedPage}";
+			isLoadingVFPage = true;
+			var ListTemp=  document.getElementById('{!$Component.VIDSingerForSalesforceDragNDropFilePage.F_INNER_INIT.the_signer_list}').value;
+			console.log(ListTemp);
+			scale = 1;
+			signersList= JSON.parse(ListTemp);
+			console.log('signersList');
+			console.log(signersList);
+			currentSigner = 0;
+			qtyPagesTotal = 0;
+			gtyGenered = 0;
+			$spinner = document.getElementsByClassName("slds-spinner_container")[0];
+			$spinner.style.display = "block";
+			$("#current-signer").html(1);
+			$("#signature-number").html(1);
+			$("#num-signers").html(signersList.length);
+
+			for(let i = 0; i < signersList.length; i++)
+			{
+				signersList[i].checked = true;
+			}
+			$('#div-btn-send').css('display', 'none');
+			$("#custom-pager").css('display', 'none');
+			$('#div-preview').show();
+			$('#wating-preview-doc').show();
+			loadCurrentSignerData(0);
+			/*
+                $("#signer-name").val( signersList[currentSigner].SignerName);
+                $("#signer-id-type").val(signersList[currentSigner].TypeOfID );
+                 $("#signer-id").val( signersList[currentSigner].NumberID);
+                 $("#signer-email").val(signersList[currentSigner].eMail );
+                  $("#device").val(signersList[currentSigner].DeviceName);
+                $("#signature-type").val( signersList[currentSigner].SignatureType);
+                $("#phone-number").val(signersList[currentSigner].PhoneNumber);
+                  $("#signer-language").val(signersList[currentSigner].Language); */
+
+			initVIDClientForSalesforce ();
+			isLoadingVFPage = false;
+			console.log('defaultPageName');
+			console.log(defaultPageName);
+
+			if(defaultPageName != null && defaultPageName !='' ){
+				console.log('Entro a cargar contrato');
+				//$('#preview-doc').hide();
+				loadContract(contractId, defaultPageName).then(data => {
+					$("#loadFile-here").css('display',  'block');
+					$("#opaque-one").css('display','none');
+					showSpinner();
+				});
+			}else{
+				showSpinner();
+			}
+
+		});
+
+		async function getPdfText(data) {
+			let doc = await pdfjsLib.getDocument(data).promise;
+			let pageTexts = Array.from({length: doc.numPages}, async (v,i) => {
+				return (await (await doc.getPage(i+1)).getTextContent()).items.map(token => token.str).join('');
+			});
+			return (await Promise.all(pageTexts)).join('');
+		}
+		const goPages = async function(){
+			let h = 0;
+			gtyGenered = 1;
+			for(var pageN = 1; pageN <= pdf.numPages; pageN++){
+				const page = await pdf.getPage(pageN);
+				console.log('got a page', pageN);
+				// Wait for rendering to finish
+				var viewport = page.getViewport(scale);
+				canvas.height = viewport.height;
+				canvas.width = viewport.width;
+
+				// Render PDF page into canvas context
+
+				var renderContext = {
+					canvasContext: ctx,
+					viewport: viewport
+				};
+				h+= viewport.height;
+				//
+				// Render PDF page into canvas context
+				//
+				var task = page.render( renderContext)
+				await task.promise;
+				pdfImageURLs[pageN-1] = canvas.toDataURL('image/jpeg');
+				gtyGenered++;
+			}
+		};
+		/**
+		 * Get page info from document, resize canvas accordingly, and render page.
+		 * @param num Page number.
+		 */
+		function renderPageLocal(num)
+		{
+			pageRendering = true;
+			//pageNum = num;
+			// Using promise to fetch the page
+			// Update page counters
+			document.getElementById('page_num').textContent = num;
+			pdf.getPage(num).then( function(page) {
+				//clearFullCanvas();
+				// Wait for rendering to finish
+				var viewport = page.getViewport({scale: scale});
+				canvas.height = viewport.height;
+				canvas.width = viewport.width;
+
+				// Render PDF page into canvas context
+
+				var renderContext = {
+					canvasContext: ctx,
+					viewport: viewport
+				};
+				var renderTask = page.render(renderContext);
+
+				renderTask.promise.then(function() {
+					pageRendering = false;
+					if (pageNumPending !== null) {
+						// New page rendering is pending
+						renderPageLocal(pageNumPending);
+						pageNumPending = null;
+					}
+					pdfImages[num-1] = ctx.getImageData(0, 0, canvas.width, canvas.height);
+					ctx.clearRect(0, 0, canvas.width, canvas.height);
+					ctx.putImageData(pdfImages[num-1], 0, 0 );
+					pdfImageURLs[num-1]  = ctx.canvas.toDataURL();
+					/*	if(num==1){
+                            gtyGenered = qtyPagesTotal;
+						}else{
+                            gtyGenered++;
+						}*/
+					gtyGenered++;
+
+					console.log('pdfImages DEFINICION');
+					console.log(pdfImages);
+					// calculate the width of the final display canvas
+					if (canvas.width > maxCanvasWidth) {
+						maxCanvasWidth = canvas.width;
+					}
+					// calculate the accumulated with of the final display canvas
+					canvasHeight += canvas.height;
+					// save the "Y" starting position of this pages[i]
+					pageStarts[num] = pageStarts[num-1] + canvas.height;
+					//console.log("pre-rendered page " + pageNum + num);
+					console.log('resuelve proesa');
+					var defaultPage = new Image();
+					defaultPage.onload = onLoadImage();
+					defaultPage.src = pdfImageURLs[num-1];
+					document.getElementById('canvas-preview-doc').src=pdfImageURLs[num-1];
+				}).catch(error => console.log(`Error in executing render ${error}`));
+			}).catch( error => error.toString())
+
+		}
+
+		/**
+		 * If another page rendering in progress, waits until the rendering is
+		 * finised. Otherwise, executes rendering immediately.
+		 */
+		function queueRenderPage(num) {
+			if (pageRendering) {
+				pageNumPending = num;
+			} else {
+				renderPageLocal(num);
+			}
+		}
+
+		/**
+		 * Displays previous page.
+		 */
+		/*	function onPrevPage() {
+                    if (pageNum <= 1) {
+                        return;
+                    }
+                    pageNum--;
+                    queueRenderPage(pageNum);
+                }
+                document.getElementById('prev').addEventListener('click', onPrevPage); */
+
+		/**
+		 * Displays next page.
+		 */
+		/*		function onNextPage() {
+                    if (pageNum >= pdf.numPages) {
+                        return;
+                    }
+                    pageNum++;
+                    queueRenderPage(pageNum);
+                }
+                document.getElementById('next').addEventListener('click', onNextPage);  */
+
+		var Base64Binary = {
+			_keyStr : "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
+
+			/* will return a  Uint8Array type */
+			decodeArrayBuffer: function(input) {
+				var bytes = (input.length/4) * 3;
+				var ab = new ArrayBuffer(bytes);
+				this.decode(input, ab);
+
+				return ab;
+			},
+
+			removePaddingChars: function(input){
+				var lkey = this._keyStr.indexOf(input.charAt(input.length - 1));
+				if(lkey == 64){
+					return input.substring(0,input.length - 1);
+				}
+				return input;
+			},
+
+			decode: function (input, arrayBuffer) {
+				//get last chars to see if are valid
+				input = this.removePaddingChars(input);
+				input = this.removePaddingChars(input);
+
+				var bytes = parseInt((input.length / 4) * 3, 10);
+
+				var uarray;
+				var chr1, chr2, chr3;
+				var enc1, enc2, enc3, enc4;
+				var i = 0;
+				var j = 0;
+
+				if (arrayBuffer)
+					uarray = new Uint8Array(arrayBuffer);
+				else
+					uarray = new Uint8Array(bytes);
+
+				input = input.replace(/[^A-Za-z0-9\+\/\=]/g, "");
+
+				for (i=0; i<bytes; i+=3) {
+					//get the 3 octects in 4 ascii chars
+					enc1 = this._keyStr.indexOf(input.charAt(j++));
+					enc2 = this._keyStr.indexOf(input.charAt(j++));
+					enc3 = this._keyStr.indexOf(input.charAt(j++));
+					enc4 = this._keyStr.indexOf(input.charAt(j++));
+
+					chr1 = (enc1 << 2) | (enc2 >> 4);
+					chr2 = ((enc2 & 15) << 4) | (enc3 >> 2);
+					chr3 = ((enc3 & 3) << 6) | enc4;
+
+					uarray[i] = chr1;
+					if (enc3 != 64) uarray[i+1] = chr2;
+					if (enc4 != 64) uarray[i+2] = chr3;
+				}
+
+				return uarray;
+			}
+		}
+
+	</script>
+	<script type="text/javascript" src="{!URLFOR($Resource.VDJSS_PDFPreview)}" />
+
+	<script type="text/javascript">
+		document.write('<scr'+'ipt src="./js/v1-preview.js?'+Math.random()+'" type="text/javascript"></scr'+'ipt>');
+		document.write('<scr'+'ipt src="./js/v1-filedrag.js?'+Math.random()+'" type="text/javascript"></scr'+'ipt>');
+	</script><script src="./ViDSigner Web Client_files/v1-preview.js.descarga" type="text/javascript"></script><script src="./ViDSigner Web Client_files/v1-filedrag.js.descarga" type="text/javascript"></script>
+	<div style="display:none">
+		<span id="errortoreload">Error al recargar la lista de documentos firmados</span>
+		<span id="erroremptylist">La lista de documentos firmados está vacía.</span>
+		<span id="erroraccessdata">Datos de acceso incorrectos</span>
+		<span id="errorloginprocess">Error en el proceso de login</span>
+		<span id="errortoloaddevicelist">Error al cargar la lista de dispositivos</span>
+		<span id="selectdevice">Seleccione un dispositivo...</span>
+		<span id="devicenotassigned">Sin dispositivo asignado</span>
+		<span id="errortocheckdocstatus">Error al comprobar el estado del documento</span>
+		<span id="docrejected">El documento ha sido rechazado</span>
+		<span id="docnotavailable">El documento no está disponible para descargar</span>
+		<span id="errortodownload">Error al descargar el documento</span>
+		<span id="errornamerequired">El 'Nombre' es obligatorio.</span>
+		<span id="errorcheckboxrequired">El firmante tiene formularios guardados: debe marcar la casilla "Firmas ordenadas" antes de continuar.</span>
+		<span id="errorquestionrequired">El 'Título' es obligatorio.</span>
+		<span id="errortypeidrequired">El 'Tipo de ID' es obligatorio.</span>
+		<span id="erroridrequired">El 'ID' es obligatorio.</span>
+		<span id="errorpinrequired">El 'Código Pin' es obligatorio.</span>
+		<span id="errorusercertificate">El certificado de usuario es obligatorio.</span>
+		<span id="erroremailnotvalid">El 'Email' no tiene un formato válido.</span>
+		<span id="errordevicerequired">El 'Dispositivo' es obligatorio.</span>
+		<span id="errorfilerequired">Debe seleccionar un archivo.</span>
+		<span id="errorfilenopdf">El documento seleccionado no es un PDF.</span>
+		<span id="selectsignaturetype">Seleccione tipo de firma...</span>
+		<span id="signatureremote">Firma Remota</span>
+		<span id="signatureany">BIO</span>
+		<span id="signaturecentralized">Firma Centralizada</span>
+		<span id="signaturestamp">Firma de Sello</span>
+		<span id="selectcertificate">Seleccione un certificado...</span>
+		<span id="selectusercertificate">Seleccione un certificado de usuario...</span>
+		<span id="errorsignaturetyperequired">El 'Tipo de Firma' es obligatorio.</span>
+		<span id="errorcertificaterequired">El 'Certificado' es obligatorio.</span>
+		<span id="errorphonenumbernotvalid">El número de teléfono no es válido. Ej: +34600600600</span>
+		<span id="errorphonenumberrequired">El 'Número de Teléfono' es obligatorio cuando el tipo de firma es REMOTA.</span>
+		<span id="erroremailrequired">El 'Email' es obligatorio cuando el tipo de firma es REMOTA o se marca el check de 'Enviar documento firmado' o el de 'Enviar notificación por correo'.</span>
+		<span id="errortoprocesslogin">Error en el proceso de login</span>
+		<span id="errortochecksubscriptionsignaturechannels">Error al cargar los canales de firma habilitados</span>
+		<span id="errorsignerlanguagerequired">El 'Idioma' es obligatorio.</span>
+		<span id="selectsignaturelanguage">Seleccione un idioma...</span>
+		<span id="erroremailsubjectrequired">El 'Asunto' es obligatorio.</span>
+		<span id="erroremailbodyrequired">El 'Cuerpo' es obligatorio.</span>
+		<span id="errorissuernamerequired">El 'Nombre del Emisor' es obligatorio.</span>
+		<span id="language_ca">Catalán</span>
+		<span id="language_en">Inglés</span>
+		<span id="language_es">Español</span>
+		<span id="language_eu">Euskera</span>
+		<span id="language_pl">Polaco</span>
+		<span id="language_nl">Holandés</span>
+		<span id="language_pt">Portugués</span>
+		<span id="language_de">Alemán</span>
+		<span id="language_iw">Hebreo</span>
+		<span id="language_fr">Francés</span>
+		<span id="errortoloadregisterdata">Error al cargar los datos de la anotación</span>
+		<span id="errordocumenttyperequired">El 'Tipo de Documento' es obligatorio.</span>
+		<span id="msgselectbookcode">Seleccione un código de libro...</span>
+		<span id="msgselectdocumenttype">Seleccione un tipo de documento...</span>
+		<span id="errorenvironmentrequired">Debe seleccionar un entorno.</span>
+		<span id="errorsubscriptionrequired">Subscripción' es obligatorio.</span>
+		<span id="errorpassrequired">Contraseña' es obligatorio.</span>
+		<span id="errorannotationrequired">Debe indicar un número de anotación.</span>
+		<span id="errorbookrequired">Debe indicar un libro.</span>
+	</div>
+	</html>
+</apex:page>

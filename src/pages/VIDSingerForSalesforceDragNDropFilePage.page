@@ -1,0 +1,280 @@
+<!--
+ - Created by josue.beltran on 6/27/2020.
+ -->
+
+<apex:page id="VIDSingerForSalesforceDragNDropFilePage">
+	<script type="text/javascript">
+		var __sfdcSessionId = '{!GETSESSIONID()}';
+		console.log('__sfdcSessionId' + __sfdcSessionId);
+	</script>
+	<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+	</head>
+	<body>
+	<form id="upload" action="https://sendto.vidsigner.net/uploadfile.php" method="POST" enctype="multipart/form-data">
+
+		<fieldset>
+
+			<input type="hidden" id="MAX_FILE_SIZE" name="MAX_FILE_SIZE" value="300000" />
+
+			<div>
+				<label for="fileselect">Files to upload:</label>
+				<input type="file" id="fileselect" name="fileselect[]" multiple="multiple" />
+				<div id="filedrag">or drop files here</div>
+			</div>
+
+			<div id="submitbutton">
+				<button type="submit">Upload Files</button>
+			</div>
+
+		</fieldset>
+
+	</form>
+	</body>
+	<style>
+		body
+		{
+			font-family: "Segoe UI", Tahoma, Helvetica, freesans, sans-serif;
+			font-size: 90%;
+			margin: 10px;
+			color: #333;
+			background-color: #fff;
+		}
+
+		h1, h2
+		{
+			font-size: 1.5em;
+			font-weight: normal;
+		}
+		#drop_zone {
+			border: 5px solid blue;
+			width:  200px;
+			height: 100px;
+		}
+		h2
+		{
+			font-size: 1.3em;
+		}
+
+		legend
+		{
+			font-weight: bold;
+			color: #333;
+		}
+
+		#filedrag
+		{
+			display: none;
+			font-weight: bold;
+			text-align: center;
+			padding: 1em 0;
+			margin: 1em 0;
+			color: #555;
+			border: 2px dashed #555;
+			border-radius: 7px;
+			cursor: default;
+		}
+
+		#filedrag.hover
+		{
+			color: #f00;
+			border-color: #f00;
+			border-style: solid;
+			box-shadow: inset 0 3px 4px #888;
+		}
+
+		img
+		{
+			max-width: 100%;
+		}
+
+		pre
+		{
+			width: 95%;
+			height: 8em;
+			font-family: monospace;
+			font-size: 0.9em;
+			padding: 1px 2px;
+			margin: 0 0 1em auto;
+			border: 1px inset #666;
+			background-color: #eee;
+			overflow: auto;
+		}
+
+		#messages
+		{
+			padding: 0 10px;
+			margin: 1em 0;
+			border: 1px solid #999;
+		}
+
+		#progress p
+		{
+			display: block;
+			width: 240px;
+			padding: 2px 5px;
+			margin: 2px 0;
+			border: 1px inset #446;
+			border-radius: 5px;
+			background: #eee url("progress.png") 100% 0 repeat-y;
+		}
+
+		#progress p.success
+		{
+			background: #0c0 none 0 0 no-repeat;
+		}
+
+		#progress p.failed
+		{
+			background: #c00 none 0 0 no-repeat;
+		}
+
+	</style>
+	<script>
+
+
+		var  vdFILEMC = "{!$MessageChannel.VDSingerMessageChannel__c}";
+		console.log('messagechanel');
+		console.log(vdFILEMC );
+
+		// getElementById
+		function $id(id) {
+			return document.getElementById(id);
+		}
+
+
+		// output information
+		function Output(msg) {
+			var m = $id("messages");
+			m.innerHTML = msg + m.innerHTML;
+		}
+
+
+		// file drag hover
+		function FileDragHover(e) {
+			e.stopPropagation();
+			e.preventDefault();
+			e.dataTransfer.dropEffect = 'copy';
+			e.target.className = (e.type == "dragover" ? "hover" : "");
+		}
+
+
+		// file selection
+		function FileSelectHandler(e) {
+
+			// cancel event and hover styling
+			FileDragHover(e);
+
+			// fetch FileList object
+			var files = e.target.files || e.dataTransfer.files;
+
+			// process all File objects
+			for (var i = 0, f; f = files[i]; i++) {
+				ParseFile(f);
+			}
+
+		}
+		var accept = {
+			binary : ["image/png", "image/jpeg"],
+			text   : ["text/plain", "application/pdf", "application/xml", "text/html"]
+		};
+		function sedFile(file){
+			const jsonString = JSON.stringify(file);
+			const blobFile = new Blob([jsonString],{type: 'application/pdf'})
+
+
+			const payload = {
+				recordId: "added.file",
+				recordData:jsonString
+			};
+			console.log(payload);
+			var message = {
+				name: vdFILEMC,
+				payload: payload
+			};
+			var lexOrigin = "https://cpqlab-dev-ed.lightning.force.com";
+			console.log(message);
+			parent.postMessage(message, lexOrigin);
+		}
+		// output file information
+		function ParseFile(file) {
+			// if file type could be detected
+
+			if (file !== null) {
+				if (accept.text.indexOf(file.type) > -1) {
+					// file is of type text, which we accept
+					// make sure it's encoded as utf-8
+					var reader = new FileReader();
+					// Closure to capture the file information.
+					reader.onload = function () {
+						var pdfDataBF =  reader.result;
+						console.log('original data1');
+						console.log(pdfDataBF);
+						console.log('original data2');
+						console.log(pdfDataBF.substring((pdfDataBF.indexOf(",")) + 1));
+						var data =encodeURIComponent( pdfDataBF);
+						console.log('original data2');
+						console.log(data);
+
+						console.log('original data');
+						console.log(data);
+						if(data != null){
+							const payload = {
+								recordId: "added.file",
+								recordData: data
+							};
+							console.log(payload);
+							var message = {
+								name: vdFILEMC,
+								payload: payload
+							};
+							var lexOrigin = "https://cpqlab-dev-ed.lightning.force.com";
+							parent.postMessage(message, lexOrigin);
+							//sforce.one.publish( vdFILEMC , payload);
+
+						}
+					};
+					reader.readAsDataURL(file);
+				}
+
+			} else if (accept.binary.indexOf(file.mediaType) > -1) {
+				// binary
+			}
+
+		}
+
+
+		// initialize
+		function Init() {
+
+			var fileselect = $id("fileselect"),
+					filedrag = $id("filedrag"),
+					submitbutton = $id("submitbutton");
+
+
+			// file select
+			fileselect.addEventListener("change", FileSelectHandler, false);
+
+			// is XHR2 available?
+			var xhr = new XMLHttpRequest();
+			if (xhr.upload) {
+
+				// file drop
+				filedrag.addEventListener("dragover", FileDragHover, false);
+				filedrag.addEventListener("dragleave", FileDragHover, false);
+				filedrag.addEventListener("drop", FileSelectHandler, false);
+				filedrag.style.display = "block";
+
+				// remove submit button
+				submitbutton.style.display = "none";
+			}
+
+		}
+		// call initialization file
+		if (window.File && window.FileList && window.FileReader) {
+			Init();
+		}
+	</script>
+	</html>
+</apex:page>

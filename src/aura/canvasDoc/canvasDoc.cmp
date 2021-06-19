@@ -1,0 +1,9 @@
+<!--
+ - Created by josue.beltran on 9/24/2020.
+ -->
+
+<aura:component description="canvasDoc">
+
+		<force:canvasApp developerName="MyCanvasApp" namespacePrefix="myNamespace" />
+
+</aura:component>

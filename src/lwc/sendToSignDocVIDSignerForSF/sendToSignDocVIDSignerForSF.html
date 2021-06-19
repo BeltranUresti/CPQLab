@@ -1,0 +1,295 @@
+<!--
+ - Created by josue.beltran on 9/23/2020.
+ -->
+
+<!-- Send To Sign Doc Vid Signer For Sf -->
+<template>
+	<!-- Navigation Bar -->
+	<nav class="navbar highlights slds-clearfix slds-page-header slds-page-header_record-home fixed-position"  data-aura-class="onesetupSetupHeader"  data-pheader="panelHeader" style="height: 67px; left: 13px; right: 13px; padding-left: 16px; padding-right: 16px; border-radius: 4px;">
+		<ul class="list-inline">
+			<li>
+				<div class="setup-header-element-right">
+					<lightning-button label="Enviar a firma" title="Enviar a firma" icon-name="utility:send" icon-position="right" class="slds-m-left_x-small slds-grid_horizontal-align-end"></lightning-button>
+				</div>
+			</li>
+		</ul>
+	</nav>
+	<!-- The flexible grid (content) -->
+	<div class="row">
+		<div class="side">
+			<lightning-tabset >
+				<lightning-tab label="Destinatarios" >
+					<template if:false={isPanelOpen}>
+						<section class="slds-p-around_small slds-border_right slds-border_top slds-border_bottom dnd-kanban__column slds-border_left">
+							<ul class="slds-has-dividers_around-space" data-index="0">
+								<template for:each={listOfSingers} for:item="currentSigner" for:index="index">
+									<template if:false={currentSigner.checked}>
+										<template if:false={noAdd} >
+											<li key={currentSigner.Id} class="slds-item slds-p-around_medium" draggable="true" data-index={index}  data-id={currentSigner.Id} data-name={currentSigner.SignerName} ondragstart={drag} >
+												<article key={currentSigner.Id} >
+													<div class="slds-grid" key={currentSigner.Id}>
+														<div class="slds-col">
+															<a href="#" class="slds-text-link">{currentSigner.SignerName}</a></div>
+														<div class="slds-col slds-text-align_right">
+															<div class="slds-dropdown-trigger slds-dropdown-trigger_click">
+																<button aria-haspopup="true" class="slds-button slds-button_icon slds-button_icon-border-filled">
+<span class="slds-icon_container" title="Move Phone Charger">
+<lightning-button-icon icon-name="utility:move"
+					   variant="bare"
+					   alternative-text="Agregar"
+					   class="slds-m-left_x-small"
+					   title="Agregar firmante"></lightning-button-icon>
+<span class="slds-assistive-text">Move Phone Charger</span>
+</span>
+																</button>
+															</div>
+														</div>
+													</div>
+													<lightning-badge data-badge={currentSigner.Id}  label={currentSigner.eMail} icon-name="custom:custom11"></lightning-badge>
+												</article>
+											</li>
+										</template>
+									</template>
+									<template if:true={currentSigner.checked} >
+										<div key={currentSigner.Id} class="slds-form" >
+											<div class="form-cien slds-align-content-center">
+												<!--render facet: 2931:0-->
+												<label class="slds-form-element__label" style="font-size: 18px; width: 100%; text-align: center; padding-bottom: 5px;">
+													<img class="icon" alt="New Recipient"
+														 src="/resource/1595119227000/dsfs__RecipientIcon">&nbsp;{currentSigner.SignerName}
+												</label>
+												<div class="slds-form-element slds-form-element_stacked">
+													<label class="slds-form-element__label" >Nombre</label>
+													<div class="slds-form-element__control">
+														<input name="SignerName" data-id={currentSigner.Id} data-field="SignerName" onchange={handleChangeSigner} class="slds-input" value={currentSigner.SignerName} /></div>
+												</div>
+												<div class="slds-form-element slds-form-element_stacked">
+													<label class="slds-form-element__label" >Tipo de identificador</label>
+													<div class="slds-form-element__control">
+														<input
+																name="TypeOfID"  data-id={currentSigner.Id} data-field="TypeOfID" onchange={handleChangeSigner}  class="slds-input" value={currentSigner.TypeOfID} /></div>
+												</div>
+												<div class="slds-form-element slds-form-element_stacked">
+													<label class="slds-form-element__label" >Correo Electronico</label>
+													<div class="slds-form-element__control">
+														<input  name="eMail"
+																class="slds-input" data-id={currentSigner.Id} data-field="eMail" onchange={handleChangeSigner}   value={currentSigner.eMail} /></div>
+												</div>
+												<div class="slds-form-element slds-form-element_stacked">
+													<label class="slds-form-element__label" >Teléfono</label>
+													<div class="slds-form-element__control">
+														<input  name="PhoneNumber"  data-id={currentSigner.PhoneNumber} data-field="PhoneNumber" onchange={handleChangeSigner}
+																class="slds-input"  value={currentSigner.PhoneNumber} /></div>
+												</div>
+												<div class="slds-card__footer"
+													 style="background-color:#00bf71;" >
+													<lightning-button
+															variant="inverse"
+															data-id={currentSigner.Id}
+															label="Cancelar"
+															onclick={handleUnselect} ></lightning-button>
+													<lightning-button
+															label="Guardar"
+															access-key={index}
+															data-id={currentSigner.Id}
+															onclick={handleSaveSigner}
+															variant="inverse"></lightning-button>
+												</div>
+											</div>
+										</div>
+									</template>
+								</template>
+							</ul>
+							<template if:false={noAdd} >
+								<div class="slds-grid slds-grid_pull-padded-medium">
+									<div class="slds-col slds-p-horizontal_medium">
+										<lightning-button-icon icon-name="utility:add"
+															   variant="bare"
+															   alternative-text="Agregar"
+															   class="slds-m-left_x-small"
+															   title="Agregar firmante"
+															   onclick={handleAddNewSigner}>
+										</lightning-button-icon>
+									</div>
+								</div>
+							</template>
+						</section>
+
+					</template>
+				</lightning-tab>
+				<lightning-tab label="Remitente">
+					<div class="slds-form" >
+						<div class="form-cien slds-align-content-center">
+							<!--render facet: 2931:0-->
+							<label class="slds-form-element__label" style="border-bottom: none; background-color: rgb(255, 255, 255)">
+								<img class="icon" alt="New Recipient"
+									 src="/resource/1595119227000/dsfs__RecipientIcon">
+							</label>
+							<div class="slds-form-element slds-form-element_stacked">
+								<label class="slds-form-element__label" >Nombre</label>
+								<div class="slds-form-element__control">
+									<input name="SignerName" data-id={remitente.Id} data-field="SignerName" onchange={handleChangeSigner} class="slds-input" value={remitente.SignerName} /></div>
+							</div>
+							<div class="slds-form-element slds-form-element_stacked">
+								<label class="slds-form-element__label" >Correo Electronico</label>
+								<div class="slds-form-element__control">
+									<input  name="eMail"
+											class="slds-input" data-id={remitente.Id} data-field="eMail" onchange={handleChangeSigner}   value={remitente.eMail} /></div>
+							</div>
+							<div class="slds-form-element slds-form-element_stacked">
+								<label class="slds-form-element__label" >Teléfono</label>
+								<div class="slds-form-element__control">
+									<input  name="PhoneNumber"  data-id={remitente.Id} data-field="PhoneNumber" onchange={handleChangeSigner}
+											class="slds-input"  value={remitente.PhoneNumber} /></div>
+							</div>
+						</div>
+					</div>
+				</lightning-tab>
+			</lightning-tabset>
+		</div>
+		<div class="main">
+			<div class="demo-only-content slds-col slds-p-around_medium bckValidated"  >
+				<template if:true={previewDocument}>
+					<div class="StyledPageAligner-yhiluy-0 joypCb">
+						<div id="pd-floating-panel-container" data-blur-node="true" class="StyledPageAligner__StyledSidePanelSpacer-yhiluy-1 hgyqbn">
+							<template for:each={selectedSignersList} for:item="signer" for:index="signerIndex" >
+								<div  id={signer.Id}  key={signer.Id} class="draggable preview-signature" ondblclick={moveElementHandler}  draggable="true" >{signer.eMail}
+								</div>
+							</template>
+							<template for:each={allPages} for:item="CurrentPage" for:index="currentPageIndex">
+								<div  key={CurrentPage.Id} class="section--41277748" data-blur-node="true">
+									<div class="sectionWrapper_centered--41277748">
+										<div  data-sectionitem-index="0"
+											  class="withStaticContent__StaticContentWrapper-biol2t-0 jORjpB">
+											<div class="sectionItemWrapper--41277748 sectionItemWrapper_controls--41277748" >
+												<div class="sectionItemBox--41277748">
+													<div class="sectionControls--41277748" data-blur-node="true"><div class="title--41277748">PAG. {currentPageIndex}</div>
+														<div class="add--41277748">
+															<div>
+																<div>
+																	<svg width="24px" height="24px" viewBox="0 0 24 24" fill="currentColor" class="add_button--41277748"><path fill-rule="evenodd" d="M11 6v4.999H6v2h5V18h2v-5.001h4.999v-2H13V6z">
+																	</path>
+																	</svg>
+																</div>
+															</div>
+															<div class="addHint--41277748"></div>
+														</div>
+														<div class="settings--41277748">
+															<div aria-live="polite" aria-haspopup="true" aria-expanded="false" class="styled__SettingsButton-sc-1mh62mu-0 csLeay">
+																<svg width="24px" height="24px" viewBox="0 0 24 24" fill="currentColor" class="styled__SettingsIcon-sc-1mh62mu-1 bXkmPH">
+																	<path fill-rule="evenodd" d="M6 14a2 2 0 10.001-3.999A2 2 0 006 14zm6 0a2 2 0 10.001-3.999A2 2 0 0012 14zm6 0a2 2 0 10.001-3.999A2 2 0 0018 14z">
+																	</path>
+																</svg>
+															</div>
+														</div>
+													</div>
+													<div  key={CurrentPage.Id} data-id={CurrentPage.Id} data-index={currentPageIndex} class="defaultPageBg--41277748"   ondragover={allowDrop} >
+														<div data-page-bg="true" class="ThemePageConsumer__Component-avqo7o-0 geDVok">
+															<div class="LayoutStyledComponent-sc-1l8fbo-0 gElKye">
+																<div class="sectionItem--41277748 page page--41277748 sectionItem_e7c633a0-bc4a-44a0-9d97-724180e8c52a__page" data-component="page" data-blur-node="true" data-static-content-page="true" ondrop={drop} ondragover={allowDrop} >
+																	<div class="pageBg--41277748 w3-half w3-container">
+																		<img src={CurrentPage.pageData} alt=""  >
+																	</div>
+																	<div class="pageContent--41277748 flex-container" ondragover={allowDrop} style="display: inline-block;" data-blur-node="true" data-component="page-content" >
+																		<div class="editor--41277748"  data-blur-node="true" data-component="editor">
+																			<div class="docBlock pageLayoutRoot pageLayoutRoot--762628920 dnd-content-node nodeId480a01ca-0dfe-49e8-8afc-f5e1427023ff dnd-content-node"  data-blur-node="true">
+																				<!--  <template for:each={listOfSingers} for:item="signer" for:index="signerIndex" >
+                                                                                    <div  id={signer.Id}  key={signer.Id} class="draggable preview-signature" ondblclick={moveElementHandler}  draggable="true" >{signer.eMail}
+                                                                                    </div>
+                                                                                  </template>  -->
+																				<div class="docBlock nodeId8932efcc-f4a2-4d5e-b5fd-7adae91058d0 dnd-content-node" data-blur-node="false">
+																					<div class="col--42028592" data-blur-node="true">
+																					</div>
+																					<div class="docBlockOutline--42028592"></div>
+																				</div>
+																				<div data-editable="true" style="outline:none">
+																				</div>
+																				<div class="docBlockOutline--42028592"></div></div></div></div>
+																</div>
+															</div>
+														</div>
+													</div>
+
+
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="newPage---454258982">
+										<div data-testid="section-add-content" class="button---454258982">
+											<svg width="24px" height="24px" viewBox="0 0 24 24" fill="currentColor" class="Icon">
+												<path fill-rule="evenodd" d="M11 6v4.999H6v2h5V18h2v-5.001h4.999v-2H13V6z"></path>
+											</svg>
+											<span>Add content</span>
+										</div>
+									</div>
+								</div>
+							</template>
+						</div>
+					</div>
+				</template>
+				<template if:false={previewDocument}>
+					<template if:true={isLoading}>
+						<lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+					</template>
+					<template if:true={xhrAvailable} >
+						<div id="wating-preview-doc" class="demo-only slds-align_absolute-center" style="width:90%; margin: 8px auto 0px; text-align: center;">
+							<template if:false={previewDocument}>
+								<template if:true={watingPreviewDoc}>
+									<div id="preview-doc-temp" style="width: 100%; height: 100%;background-color:rgb(255, 255, 255)">
+										<canvas id="myCanvas" class="donut slds-align_absolute-center"
+												lwc:dom="manual" ></canvas>
+										<div id="pageContainer-temp"
+											 class="pdfViewer singlePageView dropzone nopadding  slds-align_absolute-center"
+											 style="background-color:rgb(255, 255, 255)">
+                        <span class="slds-icon-typing slds-is-animated slds-align_absolute-center" title="User is typing">
+                                                    <span class="slds-icon-typing__dot"></span>
+                                                    <span class="slds-icon-typing__dot"></span>
+                                                    <span class="slds-icon-typing__dot"></span>
+                                                    <span class="slds-assistive-text">User is typing</span>
+                        </span>
+										</div>
+									</div>
+								</template>
+								<template if:false={watingPreviewDoc}>
+									<template if:false={isPanelOpen}>
+										<div class="slds-form-element slds-align_absolute-center" >
+											<span  data-aria="true" class="slds-assistive-text"></span>
+											<span  data-form-label="true" class="slds-form-element__label"> </span>
+											<div  class="slds-form-element__control">
+												<div class="demo-only slds-align_absolute-center dropzone_integrated slds-has-drag"
+													 style="width:320px;height:320px">
+													<div id="div-preview" class="slds-file-selector slds-file-selector_integrated slds-file-selector_integrated">
+														<div id="filedrag"  ondrop={FileSelectHandler} ondragover={FileDragHover} class="slds-file-selector__dropzone
+      slds-file-selector__dropzone_integrated slds-has-drag" aria-hidden="true">
+															<input type="file" onchange={FileSelectHandler} class="slds-file-selector__input slds-assistive-text"
+																   accept="image/png,.pdf"
+																   id="file-to-upload" tabindex="-1" />
+															<label class="slds-file-selector__body slds-file-selector__body_integrated" for="file-to-upload">
+																<img class="icon" alt="File Upload"
+																	 src={addDocument}
+																/>
+															</label>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</template>
+								</template>
+							</template>
+						</div>
+					</template>
+				</template>
+			</div>
+		</div>
+	</div>
+	<!-- Footer -->
+	<div class="footer">
+		<lightning-progress-indicator current-step={currentStep} type="base" variant="base">
+			<template for:each={steps} for:item="step">
+				<lightning-progress-step label={step.label} value={step.value} key={step.label}></lightning-progress-step>
+			</template>
+		</lightning-progress-indicator>
+	</div>
+</template>

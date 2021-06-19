@@ -1,0 +1,568 @@
+<!--
+ - Created by josue.beltran on 6/27/2020.
+ -->
+
+<apex:page id="VIDSingerForSalesforceDragNDropFilePage">
+	<script type="text/javascript">
+		var __sfdcSessionId = '{!GETSESSIONID()}';
+		console.log('__sfdcSessionId' + __sfdcSessionId);
+	</script>
+	<apex:includeScript value="/canvas/sdk/js/31.0/client.js"/>
+	<apex:includeScript value="/canvas/sdk/js/31.0/canvas-all.js"/>
+	<apex:includeScript value="/soap/ajax/31.0/connection.js"/>
+	<apex:includeScript value="/sforce/one/31.0/api.js"/>
+	<html lang="en">
+	<head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+
+		<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1"/>
+		<meta name="description" content=""/>
+		<meta name="author" content=""/>
+		<meta http-equiv="Expires" content="Tue, 01 Jan 1995 12:12:12 GMT"/>
+		<meta http-equiv="Pragma" content="no-cache"/>
+
+		<script type="text/javascript" src="{!URLFOR($Resource.VDJSS_compatibility)}"  ></script>
+
+
+		<!-- Bootstrap Core CSS -->
+		<link rel="stylesheet" href="{!URLFOR($Resource.VDJSS_Bootsrapcss)}"  type="text/css"/>
+		<link rel="stylesheet" href="{!URLFOR($Resource.VDJSS_V1CSS)}"  type="text/css"/>
+		<link rel="stylesheet" href="{!URLFOR($Resource.VDJSS_V1CSS1)}"  type="text/css"/>
+		<!-- Custom Fonts -->
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.1/css/fontawesome.min.css" type="text/css"/>
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/5.1.2/collection/components/icon/icon.min.css"/>
+
+		<!-- Plugin CSS -->
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/magnific-popup.js/1.1.0/magnific-popup.min.css"/>
+		<link
+				rel="stylesheet"
+				href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.0.0/animate.min.css"
+		/>
+
+		<!-- Custom CSS -->
+		<link rel="stylesheet" href="{!URLFOR($Resource.creativecss)}" type="text/css"/>
+		<link rel="icon" type="image/png" href="https://sendto.vidsigner.net/favicon.png"/>
+
+		<link rel="stylesheet" href="{!URLFOR($Resource.vapp)}" type="text/css"/>
+
+	</head>
+	<body>
+	<script type="text/javascript" src="{!URLFOR($Resource.VDJSS_jQuery)}"  ></script>
+	<script type="text/javascript" src="{!URLFOR($Resource.VDJSS_jQueryUI)}" ></script>
+	<script type="text/javascript" src="{!URLFOR($Resource.VDJSS_jQueryUITouch)}" ></script>
+	<script type="text/javascript" src="{!URLFOR($Resource.VDJSS_Bootsrap)}"></script>
+
+	<script type="text/javascript" src="{!URLFOR($Resource.VDJSS_scrollreveal)}"></script>
+	<script type="text/javascript"
+			src="{!URLFOR($Resource.VDJSS_jQueryEASING)}"></script>
+
+	<script type="text/javascript"
+			src="{!URLFOR($Resource.VDJSS_jQueryFittext)}"></script>
+	<script type="text/javascript" src="{!URLFOR($Resource.VDJSS_jQueryMagnific)}"></script>
+	<script type="text/javascript" src="{!URLFOR($Resource.VDJSS_jQueryMSelectEd)}"></script>
+
+	<link rel="stylesheet" href="{!URLFOR($Resource.VDJSS_jQueryMSelectEdCSS)}" type="text/css"/>
+	<script src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.0.943/pdf.min.js'></script>
+	<script src='https://cdnjs.cloudflare.com/ajax/libs/interact.js/1.2.9/interact.min.js'></script>
+	<script src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.0.943/pdf.worker.min.js'></script>
+
+	<title>ViDSigner Web Client</title>
+
+	<script type="text/javascript" src="{!URLFOR($Resource.VDJSS_V1_2app)}" />
+	<script type="text/javascript" src="{!URLFOR($Resource.VDJSS_creative)}" />
+	<div class="modal custom fade in" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false" style="display: block;">
+		<div class="modal-dialog" id="myModal-dialog">
+			<div class="modal-content" style="color:white;">
+				<div class="modal-header" style="border-bottom: none; background-color: #00bf71;">
+					<button type="button" class="close" id="close" style="color:#000000; text-shadow: none; font-size: 35px" data-dismiss="modal" aria-hidden="true">×</button>
+					<img src="./ViDSigner Web Client_files/validated_white.png" id="login-logo" alt=""/>
+				</div>
+				<div class="modal-body" id="form-send-body" style="width: 100%;">
+					<div class="header-form">
+
+						<form id="upload"  method="POST" enctype="multipart/form-data">
+							<input type="hidden" name="file-b64-content" id="file-b64-content"/>
+							<input type="hidden" name="file-name" id="file-name"/>
+							<input type="hidden" name="signature-page" id="signature-page" value="1"/>
+							<input type="hidden" name="signature-x" id="signature-x" value="66"/>
+							<input type="hidden" name="signature-y" id="signature-y" value="4"/>
+							<input type="hidden" name="signature-width" id="signature-width" value="60"/>
+							<input type="hidden" name="signature-height" id="signature-height" value="20"/>
+							<input type="hidden" name="language" id="language" value="es"/>
+
+							<input type="hidden" name="question-page" id="question-page" value="1"/>
+							<input type="hidden" name="question-x" id="question-x" value="10"/>
+							<input type="hidden" name="question-y" id="question-y" value="250"/>
+							<input type="hidden" name="question-width" id="question-width" value="150"/>
+							<input type="hidden" name="question-height" id="question-height" value="10"/>
+							<div style="clear:both;"></div>
+							<div id="msg-error" class="msg-error" style="display:none;"></div>
+							<div style="clear:both;"></div>
+							<br/>
+							<div id="panel-subscription-info" style="display: none;">
+								<div style="padding-bottom:10px;text-align:left;">
+									<span style="color: #434446">Introduzca los datos de la subscripción que desea utilizar:</span>
+								</div>
+								<div style="padding-bottom:10px">
+									<select class="form-control" id="environment" name="environment">
+										<option value="">Seleccione un entorno...</option>
+										<option value="pre">PRE</option>
+										<option value="pro">PRO</option>
+									</select>
+								</div>
+								<div style="padding-bottom:10px">
+									<input type="text" class="form-control" id="subscription-user" name="subscription-user"
+										   placeholder="Subscripcion" required=""/>
+								</div>
+								<div style="padding-bottom:10px">
+									<input type="password" class="form-control" id="subscription-pass" name="subscription-pass"
+										   placeholder="Contraseña" required=""/>
+								</div>
+								<br/>
+							</div>
+							<div id="div-separator-preview" style="clear:both;"></div>
+							<div id="div-preview-document">
+								<h3 class="modal-title" style="color:#434446;">Documento</h3>
+								<div id="custom-pager" style="display: none; width: 396px;">
+									<table width="100%">
+										<tbody><tr>
+											<td width="30%" style="text-align:right"><img id="prev" name="prev" src="{!$Resource.VDJSS_sendToleftarrow}" alt="Prev page document" class="icon"/></td>
+											<td width="40%" style="text-align:center; color: #000;">Página: <span style="color: #000;" id="page_num">1</span> de <span style="color: #000;" id="page_count">1</span></td>
+											<td width="30%" style="text-align:left"><img id="next" name="next" src="{!$Resource.VDJSS_sendTorightarrow}" alt="Next page document" class="icon"/></td>
+										</tr>
+										</tbody></table>
+								</div>
+								<div id="msg-error-renderization" class="msg-error" style="display:none;width:90%; margin: 0 auto;"></div>
+								<div id="wating-preview-doc" style="width: 90%; margin: 8px auto 0px; text-align: center; display: block;">
+									<br/>
+									<img id="img-preview-document" style="display: none;
+								vertical-align:middle;width:100px; margin: 0 auto;"
+										 src="{!$Resource.VDJSS_spinner2}" alt="Preview document..."/>
+									<div id="div-drag" style="display: block;">
+										<div style="padding-bottom:10px">
+											<input type="file" name="file-to-upload" id="file-to-upload" accept="application/pdf"
+												   required=""/>
+										</div>
+										<div id="div-preview" style="display: block;">
+											<div id="filedrag">
+												<br/>
+												<i class="fa fa-upload fa-5x" aria-hidden="true"/>
+
+												<br/>
+												<label>
+													<span class="select-file">Seleccione un archivo PDF</span><br/>
+													<span class="select-file"> o arrastrelo hasta aquí</span>
+												</label>
+											</div>
+										</div>
+									</div>
+								</div>
+								<br/>
+								<!--<div id="txt-info-doc" class="txt-info" style="display:none;">
+                                    <span style="color: #000;">(*) Coloque el recuadro de firma en la posición que deseé.</span><br/>
+                                    <span style="color: #000;">(*) Ajuste el tamaño del recuadro de firma.</span>
+                                </div>-->
+								<div>
+
+									<div id="preview-doc" style="display: none; width: 396px; height: 561px;">
+										<img id="btn-change-file" src="{!$Resource.VDJSS_sendToCross}" alt="Change file"/>
+										<canvas id="canvas-doc" width="396" height="561" style="display: inherit;"></canvas>
+										<canvas id="canvas-doc-form" width="396" height="561" style="display: none;"></canvas>
+										<img id="canvas-preview-doc" style="float: left; border-style: solid; border-color: rgb(0, 143,85); border-width: 2px; width: 396px; height: 561px;"/>
+
+										<div id="preview-signature" class="ui-draggable ui-resizable" style="width: 113.386px; height: 37.7953px; left: 124.724px; top: 7.55906px; display: inherit;">
+											<!--<div id="signature-number"></div>-->
+											<div class="ui-resizable-handle ui-resizable-e" style="z-index: 1000;"></div><div class="ui-resizable-handle ui-resizable-s" style="z-index: 1000;"></div><div class="ui-resizable-handle ui-resizable-se ui-icon ui-icon-gripsmall-diagonal-se" style="z-index: 1000;"></div></div>
+										<div id="preview-form-question" style="display: none; width: 283px; height: 18px; left: 18px; top: 472px;" class="ui-draggable ui-resizable">
+											<!--<div id="question-number"></div>-->
+											<div class="ui-resizable-handle ui-resizable-e" style="z-index: 1000;"></div><div class="ui-resizable-handle ui-resizable-w" style="z-index: 1000;"></div></div>
+
+									</div>
+									<div id="div-btn-send" style="display: none;">
+										<input type="button" value="Enviar a Firmar" id="btn-send" name="btn-send" class="btn btn-primary"/>
+										<img id="img-sending" style="display:none;vertical-align:button;width:40px;margin-right:20px;"
+											 src="{!$Resource.VDJSS_spinner2}" alt="Sending document..."/>
+										<!--<button type="button" class="btn btn-dark" id="btn-close" data-dismiss="modal">Cerrar</button>-->
+									</div>
+								</div>
+
+							</div>
+
+						</form>
+						<center><div id="result"></div></center>
+					</div>
+					<div style="clear:both;"></div>
+					<div class="modal-footer" style="float:left; width:100%; border-bottom: none; border-top: none;">
+						<div id="div-btn-registry" style="display:none;">
+							<input type="button" value="Cargar datos" id="btn-registry-ok" name="btn-registry-ok"
+								   class="btn btn-primary" style="display: inline;"/>
+							<img id="img-registry-ok"
+								 style="display:none;vertical-align:button;width:40px;margin-right:20px;" src="{!$Resource.VDJSS_spinner2}" alt="Loading..."/>
+							<button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+						</div>
+						<div id="div-btn-login" style="display: none;">
+							<input type="button" value="Entrar" id="btn-login" name="btn-login"
+								   class="btn btn-primary" style="display: inline;"/>
+							<img id="img-login" style="display: none; width: 40px; margin-right: 20px;"
+								 src="{!$Resource.VDJSS_spinner2}" alt="Login..."/>
+						</div>
+						<div id="div-btn-new-form" style="display: none">
+							<input type="button" value="Crear" id="btn-new-form" name="btn-new-form"
+								   class="btn btn-primary"/>
+							<!--<img id="img-login" style="display:none;vertical-align:button;width:40px;margin-right:20px;" src="./img/spinner.gif" alt="Login..." />-->
+						</div>
+					</div>
+				</div>
+				<div class="modal-body" id="result-body" style="display: none; width: 100%;">
+					<div style="clear:both;"></div>
+					<div id="msg-error-result" class="msg-error" style="display:none;">
+
+					</div>
+					<div style="clear:both;"></div>
+					<br/>
+					<div id="result-content">
+
+					</div>
+					<br/>
+					<br/>
+					<br/>
+					<div class="modal-footer">
+						<input type="button" value="Finalizar" id="btn-finish-upload" name="btn-finish-upload"
+							   class="btn btn-primary"/>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	</body>
+	<script>
+		var files;
+		'use strict';
+		var pdfDoc = null,
+				pageNum = 1,
+				pageRendering = false,
+				pageNumPending = null,
+				scale = 0.8,
+				canvas = document.getElementById('canvas-doc'),
+				ctx = canvas.getContext('2d');
+		var  vdFILEMC = "{!$MessageChannel.VDSingerMessageChannel__c}";
+		console.log('messagechanel');
+		console.log(vdFILEMC );
+
+		// getElementById
+		function $id(id) {
+			return document.getElementById(id);
+		}
+
+
+		// output information
+		function Output(msg) {
+			var m = $id("messages");
+			m.innerHTML = msg + m.innerHTML;
+		}
+
+
+		// file drag hover
+		function FileDragHover(e)  {
+			if (e.cancelable) {
+				e.stopPropagation();
+				e.preventDefault();
+				e.target.className = (e.type == "dragover" ? "hover" : "");
+			}
+		}
+		$("#btn-change-file").click(function () {
+			files = {};
+			$('#preview-doc').hide();
+			$('#div-btn-send').css('display', 'none');
+			$("#custom-pager").css('display', 'none');
+			$("#div-drag").css('display', 'block');
+			$('#div-preview').show();
+			$('#wating-preview-doc').show();
+			$("#file-info-ok").html("");
+			var b64 = $id("file-b64-content"),
+					docname = $id("file-name");
+			b64.value = null;
+			docname.value = null;
+		});
+
+		// file selection
+		function FileSelectHandler(e) {
+
+			// cancel event and hover styling
+			FileDragHover(e);
+
+			// fetch FileList object
+			var files = e.target.files || e.dataTransfer.files;
+
+			// process all File objects
+			for (var i = 0, f; f = files[i]; i++) {
+				ParseFile(f);
+			}
+
+		}
+		var accept = {
+			binary : ["image/png", "image/jpeg"],
+			text   : ["text/plain", "application/pdf", "application/xml", "text/html"]
+		};
+		// output file information
+		function ParseFile(file) {
+			$("#msg-error").html();
+			$("#msg-error").hide();
+			$('#msg-error-renderization').html();
+			$('#msg-error-renderization').hide();
+			var error = false;
+			//var ext = (file.name).match(/\.(.+)$/)[1];
+			var indexExt = (file.name).lastIndexOf(".");
+			var ext = "";
+			if (indexExt > 0) {
+				ext = (file.name).substring(indexExt + 1);
+			}
+			if ((ext != "pdf") && (ext != "PDF")) {
+				error = true;
+			}
+			if (!error) {
+				var sizeStr = "";
+				var sizeKB = file.size / 1024;
+				var sizeLimitExceeded = false;
+				if (parseInt(sizeKB) > 1024) {
+					var sizeMB = sizeKB / 1024;
+					sizeStr = sizeMB.toFixed(2) + " MB";
+					if (sizeMB.toFixed(2) > 20) {
+						sizeLimitExceeded = true;
+					}
+				}
+				else {
+					sizeStr = sizeKB.toFixed(2) + " KB";
+				}
+				if (!sizeLimitExceeded) {
+					var filePageWmm = 210;
+					var filePageHmm = 297;
+					pageNum = 1;
+					$("#page_num").val('1');
+					$("#page_count").val('1');
+					$("#file-info-ok").html("<img src='svg/sendTo-file.svg' class='icon' style='width: 25px; height: 25px; display: block; margin: auto; margin-bottom: 10px;' alt='Pdf icon'/>" + file.name + " " + "[" + sizeStr + "]");
+					$("#file-name").val(file.name);
+					$("#img-preview-document").css('display', 'block');
+					$("#div-drag").css('display', 'none');
+					var reader = new FileReader();
+					reader.onload = function () {
+						var fileContent = reader.result;
+						// var data = encodeURIComponent(fileContent.substring((fileContent.indexOf(",")) + 1));
+						var data = fileContent.substring((fileContent.indexOf(",")) + 1);
+						if(data != null){
+							const payload = {
+								recordId: "added.file",
+								recordData: data
+							};
+							console.log(payload);
+							console.log(sforce);
+							var message = {
+								name: vdFILEMC,
+								payload: payload
+							};
+							var lexOrigin = "https://cpqlab-dev-ed.lightning.force.com";
+							//parent.postMessage(message, lexOrigin);
+						}
+
+
+						// The workerSrc property shall be specified.
+						//
+						pdfjsLib.GlobalWorkerOptions.workerSrc =
+								'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.0.943/pdf.worker.min.js';
+
+
+						pdfjsLib.getDocument(fileContent).promise.then(function(pdfDoc_) {
+							pdfDoc = pdfDoc_;
+							document.getElementById('page_count').textContent = pdfDoc.numPages;
+							renderPage(pageNum);
+							var defaultPage = new Image();
+							defaultPage.onload = function () {
+								// Initial/first page rendering
+
+
+							};
+							defaultPage.src = "data:image/png;base64," +encodeURIComponent(data);
+							$('#preview-doc').show();
+							$('#div-preview').hide();
+							$("#custom-pager").css('display', 'block');
+							$("#txt-info-doc").css('display', 'block');
+
+						});
+
+
+
+
+
+					};
+					reader.readAsDataURL(file);
+
+
+					$('#preview-doc').hide();
+					$('#wating-preview-doc').show();
+					$('#preview-document').modal('show');
+
+				} else {
+					$("#msg-error").html('<span>El archivo excede el tamaño máximo permitido (20 MB)</span>');
+					$("#msg-error").show();
+					$("#file-info-ok").html("");
+					$("#file-to-upload").val("");
+					$('#file-b64-content').val("");
+					$('#file-name').val("");
+				}
+			} else {
+				$("#msg-error").html('<span>El documento seleccionado no es un PDF.</span>');
+				$("#msg-error").show();
+				$("#file-info-ok").html("");
+				$("#file-to-upload").val("");
+				$('#file-b64-content').val("");
+				$('#file-name').val("");
+			}
+		}
+
+		// initialize
+		function Init() {
+			var fileselect = $id("file-to-upload"),
+					filedrag = $id("filedrag");
+
+			// file select
+			fileselect.addEventListener("change", FileSelectHandler, false);
+
+			// is XHR2 available?
+			var xhr = new XMLHttpRequest();
+			if (xhr.upload) {
+				// file drop
+				filedrag.addEventListener("dragover", FileDragHover, false);
+				filedrag.addEventListener("dragleave", FileDragHover, false);
+				filedrag.addEventListener("drop", FileSelectHandler, false);
+			}
+
+			fileselect.onclick = function () {
+				this.value = null;
+			};
+
+		}
+
+		// call initialization file
+		if (window.File && window.FileList && window.FileReader) {
+			Init();
+		}
+	</script>
+	<style>
+		#the-canvas {
+			border: 1px solid black;
+			direction: ltr;
+		}
+	</style>
+	<script>
+
+
+		/**
+		 * Get page info from document, resize canvas accordingly, and render page.
+		 * @param num Page number.
+		 */
+		function renderPage(num) {
+			pageRendering = true;
+			// Using promise to fetch the page
+			pdfDoc.getPage(num).then(function(page) {
+				var viewport = page.getViewport(scale);
+				canvas.height = viewport.height;
+				canvas.width = viewport.width;
+
+				// Render PDF page into canvas context
+				var renderContext = {
+					canvasContext: ctx,
+					viewport: viewport
+				};
+				var renderTask = page.render(renderContext);
+
+				// Wait for rendering to finish
+				renderTask.promise.then(function() {
+					pageRendering = false;
+					if (pageNumPending !== null) {
+						// New page rendering is pending
+						renderPage(pageNumPending);
+						pageNumPending = null;
+					}
+				});
+			});
+
+			// Update page counters
+			document.getElementById('page_num').textContent = num;
+		}
+
+		/**
+		 * If another page rendering in progress, waits until the rendering is
+		 * finised. Otherwise, executes rendering immediately.
+		 */
+		function queueRenderPage(num) {
+			if (pageRendering) {
+				pageNumPending = num;
+			} else {
+				renderPage(num);
+			}
+		}
+
+		/**
+		 * Displays previous page.
+		 */
+		function onPrevPage() {
+			if (pageNum <= 1) {
+				return;
+			}
+			pageNum--;
+			queueRenderPage(pageNum);
+		}
+		document.getElementById('prev').addEventListener('click', onPrevPage);
+
+		/**
+		 * Displays next page.
+		 */
+		function onNextPage() {
+			if (pageNum >= pdfDoc.numPages) {
+				return;
+			}
+			pageNum++;
+			queueRenderPage(pageNum);
+		}
+		document.getElementById('next').addEventListener('click', onNextPage);
+	</script>
+	<script>
+		// Load the MessageChannel token in a variable
+		var lmsDemoChannel = "{!$MessageChannel.VDSingerMessageChannel__c}";
+
+
+		var subscriptionToMC;
+		$(document).ready(function() {
+
+			console.log('SE SUBSCRIBEa ' + lmsDemoChannel + window.MessageChannelVDSingerMessageChannel__c  );
+			subscribeMC();
+		});
+
+		function publishMessage(messageRecieved) {
+			//payload can be anything you want.
+			const payload = {
+				recordId: "added.file",
+				recordData: messageRecieved
+			};
+			sforce.one.publish(lmsDemoChannel, payload);
+		}
+		function subscribeMC() {
+			if (!subscriptionToMC) {
+				subscriptionToMC = sforce.one.subscribe(lmsDemoChannel, onMCPublished, {scope: "APPLICATION"});
+			}
+		}
+		function unsubscribeMC() {
+			if (subscriptionToMC) {
+				sforce.one.unsubscribe(subscriptionToMC);
+				subscriptionToMC = null;
+			}
+		}
+		function onMCPublished(message) {
+			console.log('VF on subscribeMC listening.... ');
+			console.log(message);
+			ParseFile( message.recordData);
+		}
+	</script>
+	</html>
+</apex:page>
